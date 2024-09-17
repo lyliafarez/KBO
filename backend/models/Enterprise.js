@@ -4,7 +4,13 @@ const enterpriseSchema = new mongoose.Schema({
   EnterpriseNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{4}\.\d{3}\.\d{3}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid Enterprise Number!`
+    }
   },
   Status: {
     type: String,
