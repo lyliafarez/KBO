@@ -17,11 +17,11 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-app.use('/activities', activityRoutes);
-app.use('/addresses', addressRoutes);
-
 app.use(bodyParser.json());
 app.use(cors());
+
+app.use('/activities', activityRoutes);
+app.use('/addresses', addressRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
