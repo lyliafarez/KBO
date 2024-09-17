@@ -2,7 +2,7 @@
 
 ### Frontend
 - cd frontend
-- npm i android
+- npm i 
 - npm run android
 
 ## backend
