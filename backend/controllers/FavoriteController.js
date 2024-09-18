@@ -1,6 +1,6 @@
-import { Favorite } from '../models/Favorite.js';
+const Favorite = require('../models/Favorite.js');
 
-export const getFavorites = async (req, res) => {
+exports.getFavorites = async (req, res) => {
   try {
     const favorites = await Favorite.find();
     res.status(200).json(favorites);
@@ -10,7 +10,7 @@ export const getFavorites = async (req, res) => {
 };
 
 
-export const getFavoriteById = async (req, res) => {
+exports.getFavoriteById = async (req, res) => {
   try {
     const favorite = await Favorite.findById(req.params.id);
     if (!favorite) return res.status(404).json({ message: "Favori non trouvé" });
@@ -21,7 +21,7 @@ export const getFavoriteById = async (req, res) => {
 };
 
 
-export const createFavorite = async (req, res) => {
+exports.createFavorite = async (req, res) => {
   try {
     const newFavorite = new Favorite(req.body);
     await newFavorite.save();
@@ -31,7 +31,7 @@ export const createFavorite = async (req, res) => {
   }
 };
 
-export const updateFavorite = async (req, res) => {
+exports.updateFavorite = async (req, res) => {
   try {
     const updatedFavorite = await Favorite.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedFavorite) return res.status(404).json({ message: "Favori non trouvé" });
@@ -42,7 +42,7 @@ export const updateFavorite = async (req, res) => {
 };
 
 
-export const deleteFavorite = async (req, res) => {
+exports.deleteFavorite = async (req, res) => {
   try {
     const deletedFavorite = await Favorite.findByIdAndDelete(req.params.id);
     if (!deletedFavorite) return res.status(404).json({ message: "Favori non trouvé" });
