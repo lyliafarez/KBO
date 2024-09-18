@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const branchSchema = new mongoose.Schema({
   Id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: 'Entreprise',
     unique: true,
