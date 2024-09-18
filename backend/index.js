@@ -2,8 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const enterpriseRoutes = require('./routes/enterpriseRoutes');
-const establishmentRoutes = require('./routes/establishmentRoutes');
 
 
 // routes
@@ -12,6 +10,11 @@ const userRoutes = require('./routes/UserRoutes');
 const denominationRoutes = require('./routes/DenominationRoutes');
 const activityRoutes = require('./routes/ActivityRoutes'); 
 const addressRoutes = require('./routes/AddressRoutes');
+const enterpriseRoutes = require('./routes/enterpriseRoutes');
+const establishmentRoutes = require('./routes/establishmentRoutes');
+const contactRoutes = require('./routes/ContactRoutes');
+const codeRoutes = require('./routes/CodeRoutes');
+const favoriteRoutes = require('./routes/FavoriteRoutes');
 
 
 const app = express();
@@ -43,6 +46,10 @@ app.use('/addresses', addressRoutes);
 
 app.use('/api/enterprises', enterpriseRoutes);
 app.use('/api/establishments', establishmentRoutes);
+app.use('/api/contacts', contactRoutes);
+app.use('/api/codes', codeRoutes);
+app.use('/api/favorites', favoriteRoutes);
+
 
 
 app.listen(PORT, () => {

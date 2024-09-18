@@ -1,7 +1,7 @@
-import { Contact } from '../models/Contact.js';
+const Contact = require('../models/Contact')
 
 
-export const getContacts = async (req, res) => {
+exports.getContacts = async (req, res) => {
   try {
     const contacts = await Contact.find();
     res.status(200).json(contacts);
@@ -11,7 +11,7 @@ export const getContacts = async (req, res) => {
 };
 
 
-export const getContactById = async (req, res) => {
+exports.getContactById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
     if (!contact) return res.status(404).json({ message: "Contact non trouvé" });
@@ -22,7 +22,7 @@ export const getContactById = async (req, res) => {
 };
 
 
-export const createContact = async (req, res) => {
+exports.createContact = async (req, res) => {
   try {
     const newContact = new Contact(req.body);
     await newContact.save();
@@ -33,7 +33,7 @@ export const createContact = async (req, res) => {
 };
 
 
-export const updateContact = async (req, res) => {
+exports.updateContact = async (req, res) => {
   try {
     const updatedContact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedContact) return res.status(404).json({ message: "Contact non trouvé" });
@@ -44,7 +44,7 @@ export const updateContact = async (req, res) => {
 };
 
 
-export const deleteContact = async (req, res) => {
+exports.deleteContact = async (req, res) => {
   try {
     const deletedContact = await Contact.findByIdAndDelete(req.params.id);
     if (!deletedContact) return res.status(404).json({ message: "Contact non trouvé" });
