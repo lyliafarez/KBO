@@ -1,4 +1,4 @@
-const Activity = require('../models/activity');
+const Activity = require('../models/Activity');
 
 exports.createActivity = async (req, res) => {
   const { EntityNumber, ActivityGroup, NaceVersion, NaceCode, Classification } = req.body;

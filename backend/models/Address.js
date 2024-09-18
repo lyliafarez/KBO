@@ -23,27 +23,27 @@ const addressSchema = new mongoose.Schema({
   },
   Zipcode: {
     type: String,
-    required: true
+   // required: true
   },
   MunicipalityNL: {
     type: String,
-    required: true
+    //required: true
   },
   MunicipalityFR: {
     type: String,
-    required: true
+    //required: true
   },
   StreetNL: {
     type: String,
-    required: true
+    //required: true
   },
   StreetFR: {
     type: String,
-    required: true
+  
   },
   HouseNumber: {
     type: String,
-    required: true
+   
   },
   Box: {
     type: String

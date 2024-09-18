@@ -15,10 +15,10 @@ const denominationSchema = new mongoose.Schema({
   Language: {
     type: String,
     required: true,
-    enum: ['1', '2', '3', '4'], // Assuming 1: Dutch, 2: French, 3: German, 4: English
+    enum: ['0','1', '2', '3', '4'], // Assuming 1: Dutch, 2: French, 3: German, 4: English
     validate: {
       validator: function(v) {
-        return /^[1-4]$/.test(v);
+        return /^[0-4]$/.test(v);
       },
       message: props => `${props.value} is not a valid Language code!`
     }
