@@ -1,5 +1,5 @@
 
-const Code = require('../models/Code.js');
+const Code = require('../models/Code');
 
 
 exports.getCodes = async (req, res) => {

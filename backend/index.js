@@ -47,9 +47,7 @@ app.use('/addresses', addressRoutes);
 
 app.use('/api/enterprises', enterpriseRoutes);
 app.use('/api/establishments', establishmentRoutes);
-app.use('/api/contacts', contactRoutes);
-app.use('/api/codes', codeRoutes);
-app.use('/api/favorites', favoriteRoutes);
+
 
 
 
