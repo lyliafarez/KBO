@@ -50,14 +50,45 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/enterprises', enterpriseRoutes);
 app.use('/api/establishments', establishmentRoutes);
 
-
-
-
 app.use('/api/contacts', contactRoutes);
 app.use('/api/codes', codeRoutes);
 app.use('/api/favorites', favoriteRoutes);
 
 app.use('/api', uploadRoutes);
+
+app.get('/api/search', async (req, res) => {
+  const query = req.query.query;
+
+  // Vérification si le query est un numéro d'entreprise ou un nom
+  const isEntityNumber = /^\d{4}\.\d{3}\.\d{3}$/.test(query);
+
+  try {
+    if (isEntityNumber) {
+      // Rechercher par numéro d'entreprise
+      const enterpriseResult = await Enterprise.findOne({ EnterpriseNumber: query });
+      const denominationResult = await Denomination.findOne({ EntityNumber: query });
+
+      if (enterpriseResult || denominationResult) {
+        res.json({
+          enterprise: enterpriseResult,
+          denomination: denominationResult,
+        });
+      } else {
+        res.status(404).json({ message: 'Entreprise non trouvée' });
+      }
+    } else {
+      // Rechercher par nom d'entreprise
+      const denominationResults = await Denomination.find({ Denomination: { $regex: query, $options: 'i' } });
+      if (denominationResults.length > 0) {
+        res.json(denominationResults);
+      } else {
+        res.status(404).json({ message: 'Aucune entreprise avec ce nom trouvée' });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
