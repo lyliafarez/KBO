@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+//Swagger
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 
 
@@ -37,6 +40,37 @@ db.once('open', () => {
 //app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
+
+//Swagger config
+const swaggerOptions = {
+  swaggerDefinition: {
+    securityDefinitions: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+    openapi: '3.0.0',
+    info: {
+      title: 'KBO PROJECT API',
+      version: '1.0.0',
+      description: 'API pour gérer les entreprises et leurs informations',
+      servers: [
+        {
+          url: 'http://localhost:5000',
+          description: 'Serveur de développement'
+        }
+      ],
+    },
+  },
+  apis: ['./routes/*.js'],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+// Route pour accéder à la documentation Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // set routes
 app.use('/api/branches', branchRoutes);
