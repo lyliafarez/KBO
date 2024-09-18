@@ -1,45 +1,62 @@
 const Address = require('../models/Address');
+const csv = require('csv-parser');
+const fs = require('fs');
 
 exports.createAddress = async (req, res) => {
-  const {
-    EntityNumber,
-    TypeOfAddress,
-    CountryNL,
-    CountryFR,
-    Zipcode,
-    MunicipalityNL,
-    MunicipalityFR,
-    StreetNL,
-    StreetFR,
-    HouseNumber,
-    Box,
-    ExtraAddressInfo,
-    DateStrikingOff
-  } = req.body;
+    const {
+        EntityNumber,
+        TypeOfAddress,
+        CountryNL,
+        CountryFR,
+        Zipcode,
+        MunicipalityNL,
+        MunicipalityFR,
+        StreetNL,
+        StreetFR,
+        HouseNumber,
+        Box,
+        ExtraAddressInfo,
+        DateStrikingOff
+    } = req.body;
+  
 
-  const address = new Address({
-    EntityNumber,
-    TypeOfAddress,
-    CountryNL,
-    CountryFR,
-    Zipcode,
-    MunicipalityNL,
-    MunicipalityFR,
-    StreetNL,
-    StreetFR,
-    HouseNumber,
-    Box,
-    ExtraAddressInfo,
-    DateStrikingOff
-  });
+  console.log("EntityNumber:", EntityNumber);
+
+
+  let EntityType;
+  if (/^\d{4}\.\d{3}\.\d{3}$/.test(EntityNumber)) {
+      EntityType = 'Enterprise';
+  } else if (/^\d{1,3}\.\d{3}\.\d{3}\.\d{3}$/.test(EntityNumber)) {
+      EntityType = 'Establishment';
+  } else {
+      return res.status(400).json({ message: 'Invalid EntityNumber format' });
+  }
 
   try {
-    const savedAddress = await address.save();
-    res.status(201).json(savedAddress);
+      const address = new Address({
+          EntityNumber,
+          EntityType,  // Ajoute automatiquement le EntityType
+          TypeOfAddress,
+          CountryNL,
+          CountryFR,
+          Zipcode,
+          MunicipalityNL,
+          MunicipalityFR,
+          StreetNL,
+          StreetFR,
+          HouseNumber,
+          Box,
+          ExtraAddressInfo,
+          DateStrikingOff
+      });
+  
+      const savedAddress = await address.save();
+      res.status(201).json(savedAddress);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+      res.status(400).json({ message: error.message });
   }
 };
+  
 
 exports.getAddresses = async (req, res) => {
   try {

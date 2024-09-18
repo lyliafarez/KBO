@@ -2,14 +2,13 @@ const mongoose = require('mongoose');
 
 const activitySchema = new mongoose.Schema({
   EntityNumber: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: 'Entreprise'
   },
   ActivityGroup: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'Code' // check if code is realy same and category == 'activityGroup
+    type: String,
+    required: true
   },
   NaceVersion: {
     type: String,
