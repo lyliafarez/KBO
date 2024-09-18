@@ -1,18 +1,11 @@
-import express from 'express';
-import {
-  getCodes,
-  getCodeById,
-  createCode,
-  updateCode,
-  deleteCode
-} from '../controllers/CodeController.js';
-
+const express = require('express');
+const codeController = require('../controllers/CodeController');
 const router = express.Router();
 
-router.get('/', getCodes);
-router.get('/:id', getCodeById);
-router.post('/', createCode);
-router.put('/:id', updateCode);
-router.delete('/:id', deleteCode);
+router.get('/', codeController.getCodes);
+router.get('/:id', codeController.getCodeById);
+router.post('/', codeController.createCode);
+router.put('/:id', codeController.updateCode);
+router.delete('/:id', codeController.RouterdeleteCode);
 
-export default router;
+module.exports = router;

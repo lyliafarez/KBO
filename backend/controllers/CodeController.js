@@ -1,8 +1,8 @@
 
-import { Code } from '../models/Code.js';
+const Code = require('../models/Code.js');
 
 
-export const getCodes = async (req, res) => {
+exports.getCodes = async (req, res) => {
   try {
     const codes = await Code.find();
     res.status(200).json(codes);
@@ -12,7 +12,7 @@ export const getCodes = async (req, res) => {
 };
 
 
-export const getCodeById = async (req, res) => {
+exports.getCodeById = async (req, res) => {
   try {
     const code = await Code.findById(req.params.id);
     if (!code) return res.status(404).json({ message: "Code non trouvé" });
@@ -23,7 +23,7 @@ export const getCodeById = async (req, res) => {
 };
 
 
-export const createCode = async (req, res) => {
+exports.createCode = async (req, res) => {
   try {
     const newCode = new Code(req.body);
     await newCode.save();
@@ -34,7 +34,7 @@ export const createCode = async (req, res) => {
 };
 
 
-export const updateCode = async (req, res) => {
+exports.updateCode = async (req, res) => {
   try {
     const updatedCode = await Code.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedCode) return res.status(404).json({ message: "Code non trouvé" });
@@ -45,7 +45,7 @@ export const updateCode = async (req, res) => {
 };
 
 
-export const deleteCode = async (req, res) => {
+exports.deleteCode = async (req, res) => {
   try {
     const deletedCode = await Code.findByIdAndDelete(req.params.id);
     if (!deletedCode) return res.status(404).json({ message: "Code non trouvé" });
