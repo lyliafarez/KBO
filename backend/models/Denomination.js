@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const denominationSchema = new mongoose.Schema({
   EntityNumber: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'Entreprise',
     validate: {
       validator: function(v) {
         return /^\d{4}\.\d{3}\.\d{3}$/.test(v);

@@ -2,7 +2,13 @@ const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
   EntityNumber: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: 'EntityType' // Référence polymorphe
+  },
+  EntityType: {
     type: String,
+    enum: ['Enterprise', 'Establishment'],
     required: true
   },
   TypeOfAddress: {

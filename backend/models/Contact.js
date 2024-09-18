@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const contactSchema = new mongoose.Schema({
   EntityNumber: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Entreprise'
   },
   EntityContact: {
     type: String,

@@ -25,8 +25,9 @@ const enterpriseSchema = new mongoose.Schema({
     required: true
   },
   JuridicalForm: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Code' // check if code is realy same and category == 'juridical'form
   },
   JuridicalFormCAC: {
     type: String,

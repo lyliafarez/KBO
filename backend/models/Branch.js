@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const branchSchema = new mongoose.Schema({
   Id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'Entreprise',
     unique: true,
     validate: {
       validator: function(v) {
