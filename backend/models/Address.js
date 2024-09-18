@@ -29,15 +29,15 @@ const addressSchema = new mongoose.Schema({
   },
   StreetNL: {
     type: String,
-    required: true
+    //required: true
   },
   StreetFR: {
     type: String,
-    required: true
+  
   },
   HouseNumber: {
     type: String,
-    required: true
+   
   },
   Box: {
     type: String
