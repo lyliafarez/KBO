@@ -8,7 +8,22 @@ const Denomination = require('../models/Denomination');
 const Contact = require('../models/Contact'); 
 const Code = require('../models/Code');
 const Branch = require('../models/Branch');
+
+
+const parseDate = (dateString) => {
+    if (!dateString) {
+      return null;
+    }
+  
+    // Try parsing the date in various formats (adjust based on your actual date format)
+    const date = new Date(dateString);
+    return isNaN(date) ? null : date;
+  };
+
+
+
 // upload enterprises
+
 exports.uploadFirst10Enterprises = async (req, res) => {
   const filePath = "C:/Users/farez/OneDrive/Documents/Master 1/Semaine 13/enterprise.csv"; // Adjust this path
   const results = [];
@@ -25,14 +40,14 @@ exports.uploadFirst10Enterprises = async (req, res) => {
             return; // Skip the header row
           }
           results.push(data);
-          if (results.length === 10) {
+          if (results.length === 1000) {
             // Stop reading after 10 rows (11 including header)
             stream.destroy();
             resolve();
           }
         })
         .on('end', () => {
-          if (results.length < 10) {
+          if (results.length < 1000) {
             resolve(); // In case the file has fewer than 10 rows
           }
         })
@@ -83,14 +98,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -111,7 +126,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
         HouseNumber: row.HouseNumber,
         Box: row.Box,
         ExtraAddressInfo: row.ExtraAddressInfo,
-        DateStrikingOff: row.DateStrikingOff ? new Date(row.DateStrikingOff) : null
+        DateStrikingOff: parseDate(row.DateStrikingOff) ,
       }));
   
       // Insert the data into the database
@@ -147,14 +162,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -207,14 +222,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -263,14 +278,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -321,14 +336,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row if it exists
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -376,14 +391,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
@@ -431,14 +446,14 @@ exports.uploadFirst100Addresses = async (req, res) => {
               return; // Skip the header row
             }
             results.push(data);
-            if (results.length === 100) {
+            if (results.length === 10000) {
               // Stop reading after 100 rows (101 including header)
               stream.destroy();
               resolve();
             }
           })
           .on('end', () => {
-            if (results.length < 100) {
+            if (results.length < 10000) {
               resolve(); // In case the file has fewer than 100 rows
             }
           })
