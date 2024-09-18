@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const enterpriseRoutes = require('./routes/enterpriseRoutes');
+const establishmentRoutes = require('./routes/establishmentRoutes');
+
 
 // routes
 const branchRoutes = require('./routes/BranchRoutes');
@@ -36,6 +39,11 @@ app.use('/api/denominations', denominationRoutes);
 
 app.use('/activities', activityRoutes);
 app.use('/addresses', addressRoutes);
+
+
+app.use('/api/enterprises', enterpriseRoutes);
+app.use('/api/establishments', establishmentRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
