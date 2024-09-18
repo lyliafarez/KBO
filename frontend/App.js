@@ -1,55 +1,67 @@
-import React, {useState} from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { StyleSheet, SafeAreaView, FlatList, Text, View } from 'react-native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import HomeScreen from './src/screens/HomeScreen';
-import UserScreen from './src/screens/UserScreen';
-import AuthScreen from './src/screens/AuthScreen';
+import React, { useState } from 'react';
+import { View, FlatList, Text, StyleSheet } from 'react-native';
 import SearchBar from './components/SearchBar';
+import axios from 'axios';
 
-
-const Drawer = createDrawerNavigator();
-
-export default function App() {
+const App = () => {
   const [results, setResults] = useState([]);
 
-  const handleSearchResults = (data) => {
-    setResults(data); 
+  const handleSearch = async (query) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/search?query=${query}`);
+      let data = [];
+
+      if (Array.isArray(response.data)) {
+        data = response.data;
+      } else if (response.data.enterprise && response.data.denomination) {
+        data = [{
+          _id: response.data.enterprise._id,
+          Denomination: response.data.denomination.Denomination || 'Nom indisponible',
+          EnterpriseNumber: response.data.enterprise.EnterpriseNumber || 'Numéro indisponible',
+          Status: response.data.enterprise.Status || 'Statut indisponible'
+        }];
+      }
+
+      console.log('Résultats de la recherche===>', data);
+      setResults(data);
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      setResults([]);
+    }
   };
 
   const renderItem = ({ item }) => (
-    <View style={{ padding: 10, borderBottomWidth: 1 }}>
-      <Text>Nom : {item.Denomination || 'Nom indisponible'}</Text>
-      <Text>Numéro d'entreprise : {item.EntityNumber || item.EnterpriseNumber}</Text>
+    <View style={styles.item}>
+      <Text>Nom : {item.Denomination}</Text>
+      <Text>Numéro d'entreprise : {item.EnterpriseNumber || 'Numéro indisponible'}</Text>
       <Text>Status : {item.Status || 'Statut indisponible'}</Text>
     </View>
   );
+
   return (
-    <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Home">
-        <Drawer.Screen name="Home" component={HomeScreen} />
-        <Drawer.Screen name="My Profile" component={UserScreen} />
-        <Drawer.Screen name="Authentification" component={AuthScreen} />
-      </Drawer.Navigator>
-
-      <SafeAreaView style={{ padding: 20 }}>
-        <SearchBar onSearch={handleSearchResults} />
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={renderItem}
-        />
-      </SafeAreaView>
-
-    </NavigationContainer>
-
+    <View style={styles.container}>
+      <SearchBar onSearch={handleSearch} />
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item._id.toString()} 
+        renderItem={renderItem}
+      />
+    </View>
   );
-}
+};
+
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
 });
+
+export default App;
+

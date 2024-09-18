@@ -4,6 +4,7 @@ const denominationSchema = new mongoose.Schema({
   EntityNumber: {
     type: String,
     required: true,
+    trim: true,
     validate: {
       validator: function(v) {
         return /^\d{4}\.\d{3}\.\d{3}$/.test(v);
@@ -34,6 +35,7 @@ const denominationSchema = new mongoose.Schema({
   },
   Denomination: {
     type: String,
+    trim: true,
     required: true
   }
 }, { timestamps: true });
