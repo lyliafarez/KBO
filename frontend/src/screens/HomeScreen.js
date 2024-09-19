@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { View, Text, Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
-import AdvanceSearchDrawer from '../components/AdvanceSearchDrawer'; 
-import ListResult from '../components/ListResult'; 
+import ListResult from '../Components/ListResult'; 
 import SearchBar from '../Components/SearchBar';
 import axios from 'axios';
 
