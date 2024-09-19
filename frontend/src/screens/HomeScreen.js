@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, Pressable, Animated, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
 import AdvanceSearchDrawer from '../Components/AdvanceSearchDrawer'; 
 import ListResult from '../Components/ListResult'; 
 
@@ -7,22 +7,20 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDrawer, setShowDrawer] = useState(false); 
   const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [hasResults, setHasResults] = useState(false);
-
-  const [slideAnim] = useState(new Animated.Value(height)); // Initial value (height of the screen)
+  
+  const resultsPerPage = 5; // Number of results per page
 
   const handleSearch = () => {
     console.log('Search query:', searchQuery);
-    const results = []; // Replace with actual search logic
+    const results = Array.from({ length: Math.floor(Math.random() * 50) + 1 }, (_, index) => ({
+      id: index,
+      name: `Company ${index + 1}`,
+    })); // Simulate search logic with random number of results
     setData(results);
     setHasResults(results.length > 0);
-
-    // Slide up animation
-    Animated.timing(slideAnim, {
-      toValue: height * 0.42, // Target value (height of screen - 58%)
-      duration: 300, // Duration of animation
-      useNativeDriver: true, // Use native driver for performance
-    }).start();
+    setCurrentPage(1); // Reset to the first page on each new search
   };
 
   const handleUploadCSV = () => {
@@ -43,6 +41,24 @@ const HomeScreen = () => {
 
   const searchByActivity = (activity) => {
     console.log('Search by activity:', activity);
+  };
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(data.length / resultsPerPage);
+
+  // Get results for the current page
+  const getPaginatedResults = () => {
+    const startIndex = (currentPage - 1) * resultsPerPage;
+    return data.slice(startIndex, startIndex + resultsPerPage);
+  };
+
+  // Handle page navigation
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   const renderItem = ({ item }) => (
@@ -79,27 +95,45 @@ const HomeScreen = () => {
           onSearchByActivity={searchByActivity} 
         />
       </View>
-      <Animated.View style={[styles.listContainer, { transform: [{ translateY: slideAnim }] }]}>
-        {hasResults && (
-          <>
-            <View style={styles.topContainer}>
-              <Text style={styles.resultsCount}>100 results</Text>
-              <View style={styles.paginationContainer}>
-                <Pressable style={styles.paginationButton}>
-                  <Text style={styles.paginationText}>Prev</Text>
-                </Pressable>
-                <Pressable style={styles.paginationButton}>
-                  <Text style={styles.paginationText}>Next</Text>
-                </Pressable>
-              </View>
-            </View>
-            <ListResult 
-              data={data} 
-              renderItem={renderItem}
-            />
-          </>
+      
+      {/* The white background area for search results */}
+      <View style={styles.listContainer}>
+        <View style={styles.topContainer}>
+          <Text style={styles.resultsCount}>
+            {data.length} results
+          </Text>
+          <View style={styles.paginationContainer}>
+            <Pressable 
+              style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
+              onPress={handlePrevPage}
+              disabled={currentPage === 1} // Disable if on first page
+            >
+              <Text style={styles.paginationText}>Prev</Text>
+            </Pressable>
+            <Text style={styles.paginationText}>
+              {currentPage}/{totalPages}
+            </Text>
+            <Pressable 
+              style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
+              onPress={handleNextPage}
+              disabled={currentPage === totalPages} // Disable if on last page
+            >
+              <Text style={styles.paginationText}>Next</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Render the search results or a message if no results */}
+        {hasResults ? (
+          <FlatList 
+            data={getPaginatedResults()} 
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        ) : (
+          <Text style={styles.noResultsText}>No results found</Text>
         )}
-      </Animated.View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -119,10 +153,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: '100%',
     padding: 20,
-    position: 'absolute', 
-    bottom: 0, // Start at the bottom of the screen
-    height: height * 0.98, // Fixed height initially
-    flexDirection: 'column',
+    height: height * 0.58, // Fixed height to always cover 58% of the screen
+    justifyContent: 'flex-start',
   },
   topContainer: {
     flexDirection: 'row',
@@ -204,6 +236,15 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
+  },
+  noResultsText: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
 
