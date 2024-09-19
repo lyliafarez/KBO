@@ -10,13 +10,13 @@ async function scrapeEnterprise(req, res) {
         if (!enterprise) {
             return res.status(404).json({ error: 'Entreprise non trouvée.' });
         }
-
+        
         const EntrepriseDataEntrepriseweb = await scrapeEntrepriseweb(enterpriseNumber);
-        const EntrepriseDataKbo = await scrapeKbo(enterpriseNumber);
+        //const EntrepriseDataKbo = await scrapeKbo(enterpriseNumber);
 
         res.json({
             EntrepriseDataEntrepriseweb,
-            EntrepriseDataKbo
+            //EntrepriseDataKbo
         });
     } catch (error) {
         res.status(500).json({ error: 'Erreur lors du scraping.' });
@@ -30,12 +30,12 @@ async function scrapeMultipleEnterprises(req, res) {
         const scrapingPromises = enterprises.map(async (enterprise) => {
             const enterpriseNumber = enterprise.EnterpriseNumber;
             const EntrepriseDataEntrepriseweb = await scrapeEntrepriseweb(enterpriseNumber);
-            const EntrepriseDataKbo = await scrapeKbo(enterpriseNumber);
+           // const EntrepriseDataKbo = await scrapeKbo(enterpriseNumber);
 
             return {
                 enterpriseNumber,
-                EntrepriseDataEntrepriseweb,
-                EntrepriseDataKbo
+                EntrepriseDataEntrepriseweb
+                //EntrepriseDataKbo
             };
         });
 
