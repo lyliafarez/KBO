@@ -37,7 +37,7 @@ const enterpriseSchema = new mongoose.Schema({
     required: true
   }
 });
-
+enterpriseSchema.index({ EnterpriseNumber: 1 });
 const Enterprise = mongoose.model('Enterprise', enterpriseSchema);
 
 module.exports = Enterprise;

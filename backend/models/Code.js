@@ -19,6 +19,6 @@ const codeSchema = new mongoose.Schema({
   }
 });
 
-
+codeSchema.index({ Category: 1, Code: 1, Language: 1 });
 const Code = mongoose.model("Codes", codeSchema);
 module.exports = Code;
