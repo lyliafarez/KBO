@@ -20,6 +20,7 @@ const contactRoutes = require('./routes/ContactRoutes');
 const codeRoutes = require('./routes/CodeRoutes');
 const favoriteRoutes = require('./routes/FavoriteRoutes');
 const uploadRoutes = require('./routes/UploadRoutes');  // Import the upload route
+const scrappingRoutes = require('./routes/ScrappingRoutes');
 
 
 
@@ -92,6 +93,8 @@ app.use('/api/codes', codeRoutes);
 app.use('/api/favorites', favoriteRoutes);
 
 app.use('/api', uploadRoutes);
+
+app.use('/api/scrapping', scrappingRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
