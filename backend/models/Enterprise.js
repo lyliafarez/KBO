@@ -5,6 +5,7 @@ const enterpriseSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
     validate: {
       validator: function(v) {
         return /^\d{4}\.\d{3}\.\d{3}$/.test(v);
