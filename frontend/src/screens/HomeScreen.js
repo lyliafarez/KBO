@@ -1,34 +1,51 @@
-import React, { useContext, useEffect,useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { View, Text,Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
-import AdvanceSearchDrawer from '../Components/AdvanceSearchDrawer'; 
-import ListResult from '../Components/ListResult'; 
-
+import { View, Text, Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
+import AdvanceSearchDrawer from '../components/AdvanceSearchDrawer'; 
+import ListResult from '../components/ListResult'; 
+import SearchBar from '../Components/SearchBar';
+import axios from 'axios';
 
 const HomeScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [showDrawer, setShowDrawer] = useState(false); 
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [currentPage, setCurrentPage] = useState(1);
   const [hasResults, setHasResults] = useState(false);
   const { authState, logout } = useContext(AuthContext);
 
+  // search
+  const [results, setResults] = useState([]);
+
   useEffect(() => {
     console.log('Auth state changed:', authState);
-  }, [authState]); // This ensures HomeScreen re-renders when authState changes
+  }, [authState]);
 
-  
   const resultsPerPage = 5; // Number of results per page
 
-  const handleSearch = () => {
-    console.log('Search query:', searchQuery);
-    const results = Array.from({ length: Math.floor(Math.random() * 50) + 1 }, (_, index) => ({
-      id: index,
-      name: `Company ${index + 1}`,
-    })); // Simulate search logic with random number of results
-    setData(results);
-    setHasResults(results.length > 0);
-    setCurrentPage(1); // Reset to the first page on each new search
+  const handleSearch = async (query) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/search?query=${query}`);
+      let data = [];
+
+      if (Array.isArray(response.data)) {
+        data = response.data;
+      } else if (response.data.enterprise && response.data.denomination) {
+        data = [{
+          _id: response.data.enterprise._id,
+          Denomination: response.data.denomination.Denomination || 'Nom indisponible',
+          EnterpriseNumber: response.data.enterprise.EnterpriseNumber || 'Numéro indisponible',
+          Status: response.data.enterprise.Status || 'Statut indisponible'
+        }];
+      }
+
+      console.log('Résultats de la recherche===>', data);
+      setResults(data);
+      setHasResults(data.length > 0);
+      setCurrentPage(1); // Reset to first page when new search is performed
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      setResults([]);
+      setHasResults(false);
+    }
   };
 
   const handleUploadCSV = () => {
@@ -39,25 +56,13 @@ const HomeScreen = () => {
     setShowDrawer(!showDrawer); 
   };
 
-  const searchByName = (name) => {
-    console.log('Search by company name:', name);
-  };
-
-  const searchByNumber = (number) => {
-    console.log('Search by company number:', number);
-  };
-
-  const searchByActivity = (activity) => {
-    console.log('Search by activity:', activity);
-  };
-
   // Calculate the total number of pages
-  const totalPages = Math.ceil(data.length / resultsPerPage);
+  const totalPages = Math.ceil(results.length / resultsPerPage);
 
   // Get results for the current page
   const getPaginatedResults = () => {
     const startIndex = (currentPage - 1) * resultsPerPage;
-    return data.slice(startIndex, startIndex + resultsPerPage);
+    return results.slice(startIndex, startIndex + resultsPerPage);
   };
 
   // Handle page navigation
@@ -70,9 +75,11 @@ const HomeScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.name}</Text>
-    </View>
+    <View style={styles.item}>
+    <Text style={styles.itemTitle}>Nom : {item.Denomination}</Text>
+    <Text style={styles.itemText}>Numéro d'entreprise : {item.EnterpriseNumber || 'Numéro indisponible'}</Text>
+    <Text style={styles.itemText}>Status : {item.Status || 'Statut indisponible'}</Text>
+  </View>
   );
 
   return (
@@ -80,15 +87,7 @@ const HomeScreen = () => {
       <View style={styles.outerContainer}>
         <Text style={styles.header}>Search for information on companies</Text>
         <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchBar}
-            placeholder="Enter company name or keyword"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          <Pressable style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.buttonTextSearch}>Search</Text>
-          </Pressable>
+          <SearchBar onSearch={handleSearch} />
           <Pressable style={styles.uploadButton} onPress={handleUploadCSV}>
             <Text style={styles.buttonText}>Upload CSV</Text>
           </Pressable>
@@ -96,25 +95,19 @@ const HomeScreen = () => {
         <Pressable onPress={toggleDrawer}>
           <Text style={styles.advanceSearchText}>Advance research</Text>
         </Pressable>
-        <AdvanceSearchDrawer
-          isVisible={showDrawer} 
-          onSearchByName={searchByName}
-          onSearchByNumber={searchByNumber}
-          onSearchByActivity={searchByActivity} 
-        />
       </View>
       
       {/* The white background area for search results */}
       <View style={styles.listContainer}>
         <View style={styles.topContainer}>
           <Text style={styles.resultsCount}>
-            {data.length} results
+            {results.length} results
           </Text>
           <View style={styles.paginationContainer}>
             <Pressable 
               style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
               onPress={handlePrevPage}
-              disabled={currentPage === 1} // Disable if on first page
+              disabled={currentPage === 1}
             >
               <Text style={styles.paginationText}>Prev</Text>
             </Pressable>
@@ -124,7 +117,7 @@ const HomeScreen = () => {
             <Pressable 
               style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
               onPress={handleNextPage}
-              disabled={currentPage === totalPages} // Disable if on last page
+              disabled={currentPage === totalPages}
             >
               <Text style={styles.paginationText}>Next</Text>
             </Pressable>
@@ -136,7 +129,7 @@ const HomeScreen = () => {
           <FlatList 
             data={getPaginatedResults()} 
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
           />
         ) : (
           <Text style={styles.noResultsText}>No results found</Text>
@@ -144,7 +137,7 @@ const HomeScreen = () => {
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const { height } = Dimensions.get('window');
 
@@ -254,6 +247,23 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.5,
   },
+  item:{
+    backgroundColor:'#f9f9f9', // Light grey background for items
+    paddingVertical:10,
+    paddingHorizontal:15,
+    borderRadius:5,
+    marginVertical:5,
+    borderWidth:1,
+    borderColor:'#dddddd'
+ },
+ itemTitle:{
+    fontSize:18,
+    fontWeight:'bold',
+ },
+ itemText:{
+    fontSize:14,
+    color:'#666666'
+ },
 });
 
 export default HomeScreen;
