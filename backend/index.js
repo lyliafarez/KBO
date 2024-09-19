@@ -17,6 +17,7 @@ const contactRoutes = require('./routes/ContactRoutes');
 const codeRoutes = require('./routes/CodeRoutes');
 const favoriteRoutes = require('./routes/FavoriteRoutes');
 const uploadRoutes = require('./routes/UploadRoutes');  // Import the upload route
+const scrappingRoutes = require('./routes/ScrappingRoutes');
 const authRoutes = require('./routes/AuthRoutes')
 const searchRoutes = require('./routes/searchRoutes');  
 
@@ -91,6 +92,8 @@ app.use('/api', uploadRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes); 
+
+app.use('/api/scrapping', scrappingRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
