@@ -1,4 +1,8 @@
 const Enterprise = require('../models/Enterprise');
+const Code = require('../models/Code');
+const Denomination = require('../models/Denomination');
+const Contact = require('../models/Contact');
+const Establishment = require('../models/Establishment');
 
 const enterpriseController = {
   // Create a new enterprise
@@ -22,21 +26,10 @@ const enterpriseController = {
     }
   },
 
-  // Get a specific enterprise by EnterpriseNumber
-  /* getEnterpriseByNumber: async (req, res) => {
-    try {
-      const enterprise = await Enterprise.findOne({ EnterpriseNumber: req.params.enterpriseNumber });
-      if (!enterprise) return res.status(404).json({ message: 'Enterprise not found' });
-      res.json(enterprise);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  }, */
-
   getEnterpriseByNumber : async (req, res) => {
     try {
       const { enterpriseNumber } = req.params;
-      const language = req.query.lang || 'FR'; // Default to French if not provided
+      const language = req.query.lang || 'FR'; // Default to English if no language is specified
       const limit = parseInt(req.query.limit) || 100; // Default limit for contacts and denominations
       const skip = parseInt(req.query.skip) || 0;
   
@@ -163,67 +156,6 @@ const enterpriseController = {
         },
         {
           $lookup: {
-            from: 'activities',
-            localField: 'EnterpriseNumber',
-            foreignField: 'EntityNumber',
-            as: 'activities'
-          }
-        },
-        {
-          $lookup: {
-            from: 'codes',
-            let: { activityGroups: '$activities.ActivityGroup' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ['$Language', language] },
-                      { $eq: ['$Category', 'ActivityGroup'] },
-                      { $in: ['$Code', '$$activityGroups'] }
-                    ]
-                  }
-                }
-              }
-            ],
-            as: 'activityGroupCodes'
-          }
-        },
-        {
-          $addFields: {
-            activitiesWithDescriptions: {
-              $map: {
-                input: '$activities',
-                as: 'activity',
-                in: {
-                  $mergeObjects: [
-                    '$$activity',
-                    {
-                      ActivityGroupDescription: {
-                        $ifNull: [
-                          {
-                            $arrayElemAt: [
-                              {
-                                $filter: {
-                                  input: '$activityGroupCodes',
-                                  cond: { $eq: ['$$this.Code', '$$activity.ActivityGroup'] }
-                                }
-                              },
-                              0
-                            ]
-                          },
-                          { Description: 'No description available' }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        {
-          $lookup: {
             from: 'codes',
             let: { 
               status: '$Status', 
@@ -316,20 +248,7 @@ const enterpriseController = {
             typeOfEnterpriseDescription: '$typeOfEnterpriseDescription.Description',
             juridicalFormDescription: '$juridicalFormDescription.Description',
             denominations: 1,
-            contacts: 1,
-            activities: {
-              $map: {
-                input: '$activitiesWithDescriptions',
-                as: 'activity',
-                in: {
-                  ActivityGroup: '$$activity.ActivityGroup',
-                  NaceVersion: '$$activity.NaceVersion',
-                  NaceCode: '$$activity.NaceCode',
-                  Classification: '$$activity.Classification',
-                  ActivityGroupDescription: '$$activity.ActivityGroupDescription.Description'
-                }
-              }
-            }
+            contacts: 1
           }
         }
       ]);
@@ -343,8 +262,8 @@ const enterpriseController = {
       console.error('Error in getEnterpriseByNumber:', error);
       res.status(500).json({ message: 'An error occurred while fetching the enterprise data' });
     }
-  },  
-
+  },
+  
   // Update an enterprise
   updateEnterprise: async (req, res) => {
     try {
