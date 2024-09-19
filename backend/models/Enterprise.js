@@ -26,7 +26,7 @@ const enterpriseSchema = new mongoose.Schema({
   },
   JuridicalForm: {
     type: String,
-    required: true
+    required: true 
   },
   JuridicalFormCAC: {
     type: String,

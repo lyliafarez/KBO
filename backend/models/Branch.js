@@ -4,6 +4,7 @@ const branchSchema = new mongoose.Schema({
   Id: {
     type: String,
     required: true,
+    ref: 'Entreprise',
     unique: true,
     validate: {
       validator: function(v) {

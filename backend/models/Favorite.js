@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 
 const favoriteSchema = new mongoose.Schema({
   idUser: {
-    type: mongoose.Schema.Types.ObjectId, 
+    type: String, 
     required: true,
-    ref: 'Users' 
+    ref: 'User' 
   },
   idEntreprise: {
-    type: mongoose.Schema.Types.ObjectId, 
+    type: String, 
     required: true,
-    ref: 'Entreprises' 
+    ref: 'Entreprise' 
   },
   idFavorite: {
     type: String, 

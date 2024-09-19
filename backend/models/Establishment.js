@@ -13,7 +13,7 @@ const establishmentSchema = new mongoose.Schema({
   EnterpriseNumber: {
     type: String,
     required: true,
-    ref: 'Enterprise',
+    ref: 'Entreprise',
     validate: {
       validator: function(v) {
         return /^\d{4}\.\d{3}\.\d{3}$/.test(v);

@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const activitySchema = new mongoose.Schema({
   EntityNumber: {
     type: String,
-    required: true
+    required: true,
+    ref: 'Entreprise'
   },
   ActivityGroup: {
     type: String,

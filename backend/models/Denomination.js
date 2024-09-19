@@ -4,6 +4,7 @@ const denominationSchema = new mongoose.Schema({
   EntityNumber: {
     type: String,
     required: true,
+    ref: 'Entreprise',
     validate: {
       validator: function(v) {
         return /^\d{4}\.\d{3}\.\d{3}$/.test(v);

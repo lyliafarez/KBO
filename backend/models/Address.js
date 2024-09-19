@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const addressSchema = new mongoose.Schema({
   EntityNumber: {
     type: String,
+    required: true,
+    refPath: 'EntityType' 
+  },
+  EntityType: {
+    type: String,
     required: true
   },
   TypeOfAddress: {
