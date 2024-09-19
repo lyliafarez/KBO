@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
+import React, { useContext, useEffect,useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { View, Text,Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
 import AdvanceSearchDrawer from '../Components/AdvanceSearchDrawer'; 
 import ListResult from '../Components/ListResult'; 
+
 
 const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,6 +11,12 @@ const HomeScreen = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [hasResults, setHasResults] = useState(false);
+  const { authState, logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log('Auth state changed:', authState);
+  }, [authState]); // This ensures HomeScreen re-renders when authState changes
+
   
   const resultsPerPage = 5; // Number of results per page
 

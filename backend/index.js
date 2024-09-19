@@ -20,7 +20,7 @@ const contactRoutes = require('./routes/ContactRoutes');
 const codeRoutes = require('./routes/CodeRoutes');
 const favoriteRoutes = require('./routes/FavoriteRoutes');
 const uploadRoutes = require('./routes/UploadRoutes');  // Import the upload route
-
+const authRoutes = require('./routes/AuthRoutes')
 
 
 const app = express();
@@ -38,6 +38,11 @@ db.once('open', () => {
 
 
 //app.use(bodyParser.json());
+/* app.use(cors({
+  origin: 'http://localhost:8081/',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+})); */
 app.use(cors());
 app.use(express.json());
 
@@ -92,6 +97,7 @@ app.use('/api/codes', codeRoutes);
 app.use('/api/favorites', favoriteRoutes);
 
 app.use('/api', uploadRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
