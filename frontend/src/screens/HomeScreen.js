@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { View, Text, Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Pressable, FlatList, Modal, ActivityIndicator, Dimensions} from 'react-native';
+//import { View, Text, Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
 import ListResult from '../Components/ListResult'; 
 import SearchBar from '../Components/SearchBar';
 import axios from 'axios';
@@ -10,40 +11,45 @@ const HomeScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasResults, setHasResults] = useState(false);
   const { authState, logout } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   // search
   const [results, setResults] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]); // State for selected filters
 
   useEffect(() => {
     console.log('Auth state changed:', authState);
   }, [authState]);
 
-  const resultsPerPage = 5; // Number of results per page
+  const resultsPerPage = 100; // Number of results per page
+
+  const toggleFilter = (filter) => {
+    setSelectedFilters((prevFilters) => {
+      if (prevFilters.includes(filter)) {
+        return prevFilters.filter(f => f !== filter); // Remove filter if it's already selected
+      } else {
+        return [...prevFilters, filter]; // Add filter if it's not selected
+      }
+    });
+  };
 
   const handleSearch = async (query) => {
+    setIsLoading(true); // Show the modal
     try {
-      const response = await axios.get(`http://localhost:5000/api/search?query=${query}`);
-      let data = [];
-
-      if (Array.isArray(response.data)) {
-        data = response.data;
-      } else if (response.data.enterprise && response.data.denomination) {
-        data = [{
-          _id: response.data.enterprise._id,
-          Denomination: response.data.denomination.Denomination || 'Nom indisponible',
-          EnterpriseNumber: response.data.enterprise.EnterpriseNumber || 'Numéro indisponible',
-          Status: response.data.enterprise.Status || 'Statut indisponible'
-        }];
-      }
-
+      const filtersQueryString = selectedFilters.join(',');
+      const response = await axios.get(`http://localhost:5000/api/search?query=${query}&filters=${filtersQueryString}`);
+      let data = response.data;
+  
       console.log('Résultats de la recherche===>', data);
       setResults(data);
       setHasResults(data.length > 0);
-      setCurrentPage(1); // Reset to first page when new search is performed
+      setCurrentPage(1);
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       setResults([]);
       setHasResults(false);
+    } finally {
+      setIsLoading(false); // Hide the modal
     }
   };
 
@@ -75,10 +81,9 @@ const HomeScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-    <Text style={styles.itemTitle}>Nom : {item.Denomination}</Text>
-    <Text style={styles.itemText}>Numéro d'entreprise : {item.EnterpriseNumber || 'Numéro indisponible'}</Text>
-    <Text style={styles.itemText}>Status : {item.Status || 'Statut indisponible'}</Text>
-  </View>
+      <Text style={styles.itemTitle}>Enterprise Number: {item.EnterpriseNumber}</Text>
+      <Text style={styles.itemText}>Status: {item.Status || 'Status unavailable'}</Text>
+    </View>
   );
 
   return (
@@ -91,6 +96,35 @@ const HomeScreen = () => {
             <Text style={styles.buttonText}>Upload CSV</Text>
           </Pressable>
         </View>
+
+        {/* Filter Buttons */}
+        <View style={styles.filtersContainer}>
+          <Pressable 
+            style={[styles.filterButton, selectedFilters.includes('enterprise_number') && styles.activeFilterButton]}
+            onPress={() => toggleFilter('enterprise_number')}
+          >
+            <Text style={styles.filterButtonText}>Enterprise Number</Text>
+          </Pressable>
+          <Pressable 
+            style={[styles.filterButton, selectedFilters.includes('denomination') && styles.activeFilterButton]}
+            onPress={() => toggleFilter('denomination')}
+          >
+            <Text style={styles.filterButtonText}>Denomination</Text>
+          </Pressable>
+          <Pressable 
+            style={[styles.filterButton, selectedFilters.includes('activity') && styles.activeFilterButton]}
+            onPress={() => toggleFilter('activity')}
+          >
+            <Text style={styles.filterButtonText}>Activity</Text>
+          </Pressable>
+          <Pressable 
+            style={[styles.filterButton, selectedFilters.includes('address') && styles.activeFilterButton]}
+            onPress={() => toggleFilter('address')}
+          >
+            <Text style={styles.filterButtonText}>Address</Text>
+          </Pressable>
+        </View>
+
         <Pressable onPress={toggleDrawer}>
           <Text style={styles.advanceSearchText}>Advance research</Text>
         </Pressable>
@@ -129,11 +163,23 @@ const HomeScreen = () => {
             data={getPaginatedResults()} 
             renderItem={renderItem}
             keyExtractor={(item) => item._id.toString()}
-          />
+            />
         ) : (
           <Text style={styles.noResultsText}>No results found</Text>
         )}
       </View>
+      <Modal
+  transparent={true}
+  animationType="fade"
+  visible={isLoading}
+>
+  <View style={styles.modalBackground}>
+    <View style={styles.activityIndicatorWrapper}>
+      <ActivityIndicator size="large" color="#0000ff" />
+      <Text style={styles.loadingText}>Searching...</Text>
+    </View>
+  </View>
+</Modal>
     </SafeAreaView>
   );
 }
@@ -230,39 +276,66 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     padding: 10,
-    marginBottom: 10,
-    backgroundColor: 'white',
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  item: {
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    marginVertical: 8,
+    borderRadius: 10,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   itemText: {
     fontSize: 16,
   },
   noResultsText: {
-    fontSize: 16,
-    fontStyle: 'italic',
     textAlign: 'center',
-    marginTop: 20,
+    fontSize: 18,
+    fontStyle: 'italic',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  filterButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#FFD20A',
+    marginHorizontal: 5,
+  },
+  activeFilterButton: {
+    backgroundColor: '#FFA500', // Highlight active filters
+  },
+  filterButtonText: {
+    color: 'black',
   },
   disabledButton: {
-    opacity: 0.5,
+    backgroundColor: '#e0e0e0',
   },
-  item:{
-    backgroundColor:'#f9f9f9', // Light grey background for items
-    paddingVertical:10,
-    paddingHorizontal:15,
-    borderRadius:5,
-    marginVertical:5,
-    borderWidth:1,
-    borderColor:'#dddddd'
- },
- itemTitle:{
-    fontSize:18,
-    fontWeight:'bold',
- },
- itemText:{
-    fontSize:14,
-    color:'#666666'
- },
+  modalBackground: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  activityIndicatorWrapper: {
+    backgroundColor: 'white',
+    height: 100,
+    width: 100,
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default HomeScreen;

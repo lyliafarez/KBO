@@ -39,6 +39,7 @@ const enterpriseSchema = new mongoose.Schema({
   }
 });
 enterpriseSchema.index({ EnterpriseNumber: 1 });
+enterpriseSchema.index({ Status: 1 });
 const Enterprise = mongoose.model('Enterprise', enterpriseSchema);
 
 module.exports = Enterprise;
