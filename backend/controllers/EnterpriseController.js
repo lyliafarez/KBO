@@ -36,11 +36,191 @@ const enterpriseController = {
   getEnterpriseByNumber : async (req, res) => {
     try {
       const { enterpriseNumber } = req.params;
-      const language = req.query.lang || 'FR'; // Default to English if no language is specified
+      const language = req.query.lang || 'FR'; // Default to French if not provided
+      const limit = parseInt(req.query.limit) || 100; // Default limit for contacts and denominations
+      const skip = parseInt(req.query.skip) || 0;
   
       const result = await Enterprise.aggregate([
         {
           $match: { EnterpriseNumber: enterpriseNumber }
+        },
+        {
+          $lookup: {
+            from: 'denominations',
+            let: { entityNumber: '$EnterpriseNumber' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$EntityNumber', '$$entityNumber'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit },
+              {
+                $lookup: {
+                  from: 'codes',
+                  let: { typeOfDenomination: '$TypeOfDenomination' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$Category', 'TypeOfDenomination'] },
+                            { $eq: ['$Code', '$$typeOfDenomination'] },
+                            { $eq: ['$Language', language] }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  as: 'typeDescription'
+                }
+              },
+              {
+                $addFields: {
+                  typeDescription: { $arrayElemAt: ['$typeDescription.Description', 0] }
+                }
+              }
+            ],
+            as: 'denominations'
+          }
+        },
+        {
+          $lookup: {
+            from: 'contacts',
+            let: { entityNumber: '$EnterpriseNumber' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$EntityNumber', '$$entityNumber'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit },
+              {
+                $lookup: {
+                  from: 'codes',
+                  let: { contactType: '$ContactType', entityContact: '$EntityContact' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$Language', language] },
+                            {
+                              $or: [
+                                { $and: [{ $eq: ['$Category', 'ContactType'] }, { $eq: ['$Code', '$$contactType'] }] },
+                                { $and: [{ $eq: ['$Category', 'EntityContact'] }, { $eq: ['$Code', '$$entityContact'] }] }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  as: 'codeDescriptions'
+                }
+              },
+              {
+                $addFields: {
+                  contactTypeDescription: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$codeDescriptions',
+                          cond: { $eq: ['$$this.Category', 'ContactType'] }
+                        }
+                      },
+                      0
+                    ]
+                  },
+                  entityContactDescription: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$codeDescriptions',
+                          cond: { $eq: ['$$this.Category', 'EntityContact'] }
+                        }
+                      },
+                      0
+                    ]
+                  }
+                }
+              },
+              {
+                $project: {
+                  EntityNumber: 1,
+                  EntityContact: 1,
+                  ContactType: 1,
+                  Value: 1,
+                  contactTypeDescription: '$contactTypeDescription.Description',
+                  entityContactDescription: '$entityContactDescription.Description'
+                }
+              }
+            ],
+            as: 'contacts'
+          }
+        },
+        {
+          $lookup: {
+            from: 'activities',
+            localField: 'EnterpriseNumber',
+            foreignField: 'EntityNumber',
+            as: 'activities'
+          }
+        },
+        {
+          $lookup: {
+            from: 'codes',
+            let: { activityGroups: '$activities.ActivityGroup' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$Language', language] },
+                      { $eq: ['$Category', 'ActivityGroup'] },
+                      { $in: ['$Code', '$$activityGroups'] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'activityGroupCodes'
+          }
+        },
+        {
+          $addFields: {
+            activitiesWithDescriptions: {
+              $map: {
+                input: '$activities',
+                as: 'activity',
+                in: {
+                  $mergeObjects: [
+                    '$$activity',
+                    {
+                      ActivityGroupDescription: {
+                        $ifNull: [
+                          {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: '$activityGroupCodes',
+                                  cond: { $eq: ['$$this.Code', '$$activity.ActivityGroup'] }
+                                }
+                              },
+                              0
+                            ]
+                          },
+                          { Description: 'No description available' }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
         },
         {
           $lookup: {
@@ -134,7 +314,22 @@ const enterpriseController = {
             statusDescription: '$statusDescription.Description',
             juridicalSituationDescription: '$juridicalSituationDescription.Description',
             typeOfEnterpriseDescription: '$typeOfEnterpriseDescription.Description',
-            juridicalFormDescription: '$juridicalFormDescription.Description'
+            juridicalFormDescription: '$juridicalFormDescription.Description',
+            denominations: 1,
+            contacts: 1,
+            activities: {
+              $map: {
+                input: '$activitiesWithDescriptions',
+                as: 'activity',
+                in: {
+                  ActivityGroup: '$$activity.ActivityGroup',
+                  NaceVersion: '$$activity.NaceVersion',
+                  NaceCode: '$$activity.NaceCode',
+                  Classification: '$$activity.Classification',
+                  ActivityGroupDescription: '$$activity.ActivityGroupDescription.Description'
+                }
+              }
+            }
           }
         }
       ]);
@@ -145,9 +340,10 @@ const enterpriseController = {
   
       res.json(result[0]);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      console.error('Error in getEnterpriseByNumber:', error);
+      res.status(500).json({ message: 'An error occurred while fetching the enterprise data' });
     }
-  },
+  },  
 
   // Update an enterprise
   updateEnterprise: async (req, res) => {
