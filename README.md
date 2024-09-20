@@ -10,10 +10,6 @@
 - [Database Population](#database-population)
   - [File Upload Process](#file-upload-process)
   - [Database Schemas](#database-schemas)
-- [How to Add Images](#how-to-add-images)
-- [Available Commands](#available-commands)
-  - [Frontend Commands](#frontend-commands)
-  - [Backend Commands](#backend-commands)
 - [App Walkthrough](#app-walkthrough)
 - [License](#license)
 
@@ -27,7 +23,7 @@ The **Enterprise Search App** allows users to search for enterprises based on va
 - **Advanced Search**: Refine searches using additional filters.
 - **Enterprise Details**: View detailed information for each enterprise.
 - **Favorites**: Authenticated users can save enterprises to their favorites list.
-- **File Upload**: Upload and populate enterprise data via a CSV file.
+
 
 ## Technologies Used
 
@@ -35,7 +31,7 @@ The **Enterprise Search App** allows users to search for enterprises based on va
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose for ODM)
 - **Authentication**: JWT Authentication for user login and protected routes
-- **File Handling**: `multer` for file uploads, `unzipper` for extracting uploaded zip files
+
 
 ## Project Setup
 
@@ -46,14 +42,28 @@ To set up the frontend part of the project:
 1. Navigate to the `frontend` directory:
    ```bash
    cd frontend
+   npm i
+   npm run android
+### Backend Setup
 
+To set up the backend part of the project:
 
-**Pour le lancement du projet**
-### Frontend
-- cd frontend
-- npm i 
-- npm run android
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   npm i
+   npm start
 
-## backend
--  npm i
-- npm start
+## Database population
+### Database Schemas
+- enterprises: Stores information about enterprises.
+- users: Contains user authentication data.
+- favorites: Tracks users' favorite enterprises.
+- activities: Logs different activities related to enterprises.
+- codes: Stores various codes associated with enterprises.
+- contacts: Contains contact details for each enterprise.
+- branches: Information about branches of enterprises.
+- denominations: Different denominations related to enterprises.
+- addresses: Address details for enterprises.
+- establishments: Information about different establishments related to enterprises.
+
