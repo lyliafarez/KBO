@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { View, Text, Button, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList } from 'react-native';
-import ListResult from '../Components/ListResult'; 
+import { View, Text, StyleSheet, SafeAreaView, Pressable, Dimensions, FlatList } from 'react-native';
 import SearchBar from '../Components/SearchBar';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
-  const [showDrawer, setShowDrawer] = useState(false); 
+  const [showDrawer, setShowDrawer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasResults, setHasResults] = useState(false);
-  const { authState, logout } = useContext(AuthContext);
+  const { authState } = useContext(AuthContext);
+  const navigation = useNavigation();
 
-  // search
   const [results, setResults] = useState([]);
 
   useEffect(() => {
     console.log('Auth state changed:', authState);
   }, [authState]);
 
-  const resultsPerPage = 5; // Number of results per page
+  const resultsPerPage = 5;
 
   const handleSearch = async (query) => {
     try {
@@ -39,7 +39,7 @@ const HomeScreen = () => {
       console.log('Résultats de la recherche===>', data);
       setResults(data);
       setHasResults(data.length > 0);
-      setCurrentPage(1); // Reset to first page when new search is performed
+      setCurrentPage(1);
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       setResults([]);
@@ -52,19 +52,16 @@ const HomeScreen = () => {
   };
 
   const toggleDrawer = () => {
-    setShowDrawer(!showDrawer); 
+    setShowDrawer(!showDrawer);
   };
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(results.length / resultsPerPage);
 
-  // Get results for the current page
   const getPaginatedResults = () => {
     const startIndex = (currentPage - 1) * resultsPerPage;
     return results.slice(startIndex, startIndex + resultsPerPage);
   };
 
-  // Handle page navigation
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -73,13 +70,31 @@ const HomeScreen = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-    <Text style={styles.itemTitle}>Nom : {item.Denomination}</Text>
-    <Text style={styles.itemText}>Numéro d'entreprise : {item.EnterpriseNumber || 'Numéro indisponible'}</Text>
-    <Text style={styles.itemText}>Status : {item.Status || 'Statut indisponible'}</Text>
-  </View>
-  );
+  const renderItem = ({ item }) => {
+    console.log("Rendering item:", item); // Log the entire item object
+  
+    return (
+      <View style={styles.item}>
+        <View>
+          <Text style={styles.itemTitle}>Nom : {item.Denomination}</Text>
+          <Text style={styles.itemText}>Numéro d'entreprise : {item.enterpriseNumber || 'Numéro indisponible'}</Text>
+          <Text style={styles.itemText}>Status : {item.Status || 'Statut indisponible'}</Text>
+        </View>
+        <Pressable
+          style={styles.voirButton}
+          onPress={() => {
+            console.log("Voir button pressed for:", item.EnterpriseNumber);
+            navigation.navigate('EnterpriseDetails', {
+                enterpriseNumber: item.EnterpriseNumber 
+            });
+            console.log("After navigation call");
+          }}
+        >
+          <Text style={styles.voirButtonText}>Voir</Text>
+        </Pressable>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -96,7 +111,6 @@ const HomeScreen = () => {
         </Pressable>
       </View>
       
-      {/* The white background area for search results */}
       <View style={styles.listContainer}>
         <View style={styles.topContainer}>
           <Text style={styles.resultsCount}>
@@ -123,7 +137,6 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Render the search results or a message if no results */}
         {hasResults ? (
           <FlatList 
             data={getPaginatedResults()} 
@@ -253,7 +266,10 @@ const styles = StyleSheet.create({
     borderRadius:5,
     marginVertical:5,
     borderWidth:1,
-    borderColor:'#dddddd'
+    borderColor:'#dddddd',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
  },
  itemTitle:{
     fontSize:18,
@@ -263,6 +279,16 @@ const styles = StyleSheet.create({
     fontSize:14,
     color:'#666666'
  },
+ voirButton: {
+    backgroundColor: '#007AFF',
+    padding: 8,
+    borderRadius: 5,
+  },
+  voirButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },
+ 
 });
 
 export default HomeScreen;
