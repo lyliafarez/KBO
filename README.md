@@ -10,6 +10,8 @@
 - [Database Population](#database-population)
   - [File Upload Process](#file-upload-process)
   - [Database Schemas](#database-schemas)
+  - [Swagger](#swagger)
+
 - [App Walkthrough](#app-walkthrough)
 - [License](#license)
 
@@ -67,7 +69,11 @@ To set up the backend part of the project:
 - addresses: Address details for enterprises.
 - establishments: Information about different establishments related to enterprises.
 
+  
+  ### Swagger
+  - Link to swagger : http://localhost:5000/api-docs/#/
 
+  
 ## App Walkthrough
 1. In the top corner of the screen, you'll find a hamburger menu icon that opens up additional navigation options. Here, you can:
   - Login: Access your account by entering your credentials.
