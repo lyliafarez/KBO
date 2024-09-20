@@ -54,5 +54,7 @@ const addressSchema = new mongoose.Schema({
     type: Date
   }
 });
+addressSchema.index({ EntityNumber: 1 });
+addressSchema.index({ Zipcode: 1 });
 
 module.exports = mongoose.model('Address', addressSchema);
