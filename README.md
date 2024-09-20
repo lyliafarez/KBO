@@ -88,3 +88,17 @@ Address (Zipcode)
 You can select one or multiple fields to narrow down your search and find exactly what you're looking for
 ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20142143.png)
 
+5.For Authenticated Users: Once you're logged in, you can add enterprises to your favorites list directly from the search results. Look for the "Add to Favorites" or "Favorite" button next to each enterprise in the results list. This feature allows you to easily keep track of enterprises that interest you and access them quickly in the future.
+
+![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20143251.png)
+
+6. The details of each enterprise can be viewed by clicking on " view details "
+
+![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20143307.png)
+
+- this part of the enterprise visualisation is scrapped from companyWeb
+  ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20143419.png)
+- 
+   
+
+
