@@ -57,6 +57,18 @@ To set up the backend part of the project:
    npm start
 
 ## Database population
+### File Upload Process
+- To populate the database using csv files, the path to files inside UploadController should be changed then launch :
+- http://localhost:5000/api/upload-entreprise
+- http://localhost:5000/api/upload-address
+- http://localhost:5000/api/upload-activity
+- http://localhost:5000/api/upload-establishment
+- http://localhost:5000/api/upload-denomination
+- http://localhost:5000/api/upload-contact
+- http://localhost:5000/api/upload-code
+- http://localhost:5000/api/upload-branch
+
+  
 ### Database Schemas
 - enterprises: Stores information about enterprises.
 - users: Contains user authentication data.
