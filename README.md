@@ -38,7 +38,7 @@ We generally worked together as a team, distributing tasks across specific funct
 
 ## Technologies Used
 
-- **Frontend**: React, Inertia.js, Vue.js
+- **Frontend**: React
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose for ODM)
 - **Authentication**: JWT Authentication for user login and protected routes
