@@ -13,7 +13,7 @@
   - [Swagger](#swagger)
 
 - [App Walkthrough](#app-walkthrough)
-- [License](#license)
+
 
 ## Project Description
 
