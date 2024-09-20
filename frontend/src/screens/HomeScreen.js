@@ -12,18 +12,28 @@ const HomeScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasResults, setHasResults] = useState(false);
   const { authState } = useContext(AuthContext);
-  const navigation = useNavigation();
-
+   const [userId, setUserId] = useState(null);
   const [results, setResults] = useState([]);
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+   const navigation = useNavigation();
+   const [selectedFilters, setSelectedFilters] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-
+  
   const resultsPerPage = 100;
-
-  const toggleFilter = (filter) => {
+  
+  
+   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUserId(user._id);
+      fetchFavorites(user._id);
+    }
+  }, []);
+  
+  
+   const toggleFilter = (filter) => {
     setSelectedFilters((prevFilters) => {
       if (prevFilters.includes(filter)) {
         return prevFilters.filter(f => f !== filter);
@@ -32,8 +42,8 @@ const HomeScreen = () => {
       }
     });
   };
-
-  const handleSearch = async (query) => {
+  
+   const handleSearch = async (query) => {
     setIsLoading(true);
     try {
       const filtersQueryString = selectedFilters.join(',');
@@ -50,15 +60,50 @@ const HomeScreen = () => {
       setIsLoading(false);
     }
   };
-
-  const handleUploadCSV = () => {
-    console.log('Upload CSV button pressed');
+  
+  const fetchFavorites = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/favorites`, {
+        params: { idUser: id }
+      });
+      setFavorites(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des favoris:', error);
+    }
   };
-
-
-  const toggleAdvancedSearch = () => {
+  
+  const toggleFavorite = async (item) => {
+    if (!authState?.isAuthenticated) {
+      console.log('User is not authenticated');
+      return;
+    }
+  
+    try {
+      const favorite = favorites.find(fav => fav.idEntreprise === item._id);
+      const isFavorite = !!favorite;
+  
+      if (isFavorite) {
+        await axios.delete(`http://localhost:5000/api/favorites/${favorite._id}`);
+        setFavorites(favorites.filter(fav => fav._id !== favorite._id));
+      } else {
+        const response = await axios.post('http://localhost:5000/api/favorites', {
+          idUser: authState.user._id,
+          idEntreprise: item._id
+        });
+        setFavorites([...favorites, { _id: response.data._id, idEntreprise: item._id }]);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout ou de la suppression des favoris:', error);
+    }
+  }
+  
+   const toggleAdvancedSearch = () => {
     setShowAdvancedSearch(!showAdvancedSearch);
+
   };
+  
+  
+
 
   const totalPages = Math.ceil(results.length / resultsPerPage);
 
@@ -77,6 +122,10 @@ const HomeScreen = () => {
 
 
   const renderItem = ({ item }) => {
+    
+     const isFavorite = favorites.some(fav => fav.idEntreprise === item._id);
+    const isAuthenticated = authState?.isAuthenticated;
+    
     return (
       <View style={styles.item}>
         <View>
@@ -96,12 +145,21 @@ const HomeScreen = () => {
         >
           <Text style={styles.voirButtonText}>Voir</Text>
         </Pressable>
+ {isAuthenticated && (
+          <Pressable
+            style={isFavorite ? styles.removeButton : styles.favoriteButton}
+            onPress={() => toggleFavorite(item)}
+          >
+            <Text style={styles.favoriteButtonText}>
+              {isFavorite ? 'Retirer des favoris' : 'Ajouter au favoris'}
+            </Text>
+          </Pressable>
+        )}
       </View>
     );
   };
 
-
-  return (
+return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.outerContainer}>
         <Text style={styles.header}>Search for information on companies</Text>
@@ -412,5 +470,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+
+
+  
 
 export default HomeScreen;

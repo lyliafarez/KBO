@@ -1,6 +1,6 @@
 const express = require('express');
-const favoriteController = require('../controllers/FavoriteController');
 const router = express.Router();
+const favoriteController = require('../controllers/FavoriteController');
 
 /**
  * @swagger
@@ -11,7 +11,6 @@ const router = express.Router();
  *       required:
  *         - idUser
  *         - idEntreprise
- *         - idFavorite
  *       properties:
  *         idUser:
  *           type: string
@@ -19,9 +18,6 @@ const router = express.Router();
  *         idEntreprise:
  *           type: string
  *           description: The ID of the enterprise (references Entreprises collection)
- *         idFavorite:
- *           type: string
- *           description: Unique identifier for the favorite
  */
 
 /**
