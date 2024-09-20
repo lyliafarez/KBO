@@ -32,6 +32,43 @@ const HomeScreen = () => {
     }
   }, []);
   
+
+  const fetchFavorites = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/favorites`, {
+        params: { idUser: id }
+      });
+      setFavorites(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des favoris:', error);
+    }
+  };
+
+  const toggleFavorite = async (item) => {
+    if (!authState?.isAuthenticated) {
+      console.log('User is not authenticated');
+      return;
+    }
+  
+    try {
+      const favorite = favorites.find(fav => fav.idEntreprise === item._id);
+      const isFavorite = !!favorite;
+  
+      if (isFavorite) {
+        await axios.delete(`http://localhost:5000/api/favorites/${favorite._id}`);
+        setFavorites(favorites.filter(fav => fav._id !== favorite._id));
+      } else {
+        const response = await axios.post('http://localhost:5000/api/favorites', {
+          idUser: authState.user._id,
+          idEntreprise: item._id
+        });
+        setFavorites([...favorites, { _id: response.data._id, idEntreprise: item._id }]);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout ou de la suppression des favoris:', error);
+    }
+  };
+  
   
    const toggleFilter = (filter) => {
     setSelectedFilters((prevFilters) => {
@@ -61,41 +98,8 @@ const HomeScreen = () => {
     }
   };
   
-  const fetchFavorites = async (id) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/favorites`, {
-        params: { idUser: id }
-      });
-      setFavorites(response.data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des favoris:', error);
-    }
-  };
-  
-  const toggleFavorite = async (item) => {
-    if (!authState?.isAuthenticated) {
-      console.log('User is not authenticated');
-      return;
-    }
-  
-    try {
-      const favorite = favorites.find(fav => fav.idEntreprise === item._id);
-      const isFavorite = !!favorite;
-  
-      if (isFavorite) {
-        await axios.delete(`http://localhost:5000/api/favorites/${favorite._id}`);
-        setFavorites(favorites.filter(fav => fav._id !== favorite._id));
-      } else {
-        const response = await axios.post('http://localhost:5000/api/favorites', {
-          idUser: authState.user._id,
-          idEntreprise: item._id
-        });
-        setFavorites([...favorites, { _id: response.data._id, idEntreprise: item._id }]);
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout ou de la suppression des favoris:', error);
-    }
-  }
+ 
+
   
    const toggleAdvancedSearch = () => {
     setShowAdvancedSearch(!showAdvancedSearch);
@@ -121,7 +125,7 @@ const HomeScreen = () => {
   };
 
 
-  const renderItem = ({ item }) => {
+  /* const renderItem = ({ item }) => {
     
      const isFavorite = favorites.some(fav => fav.idEntreprise === item._id);
     const isAuthenticated = authState?.isAuthenticated;
@@ -157,7 +161,49 @@ const HomeScreen = () => {
         )}
       </View>
     );
-  };
+  }; */
+
+  const renderItem = ({ item }) => {
+    const isFavorite = favorites.some(fav => fav.idEntreprise === item._id);
+    const isAuthenticated = authState?.isAuthenticated;
+  
+    return (
+      <View style={styles.item}>
+        <View style={styles.itemContent}>
+          <View style={styles.itemInfo}>
+            <Text style={styles.itemTitle}>{item.FirstDenomination}</Text>
+            <Text style={styles.itemText}>{item.EnterpriseNumber}</Text>
+            <Text style={styles.itemStatus}>{item.Status || 'Status unavailable'}</Text>
+          </View>
+          <View style={styles.buttonContainer}>
+            <Pressable
+              style={styles.voirButton}
+              onPress={() => {
+                console.log("Voir button pressed for:", item.EnterpriseNumber);
+                navigation.navigate('EnterpriseDetails', {
+                  enterpriseNumber: item.EnterpriseNumber 
+                });
+                console.log("After navigation call");
+              }}
+            >
+              <Text style={styles.voirButtonText}>View Details</Text>
+            </Pressable>
+            {isAuthenticated && (
+              <Pressable
+                style={[styles.favoriteButton, isFavorite && styles.removeButton]}
+                onPress={() => toggleFavorite(item)}
+              >
+                <Text style={styles.favoriteButtonText}>
+                  {isFavorite ? 'Remove' : 'Favorite'}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
 
 return (
     <SafeAreaView style={styles.safeArea}>
@@ -176,7 +222,7 @@ return (
           <Pressable style={styles.searchButton} onPress={() => handleSearch(searchQuery)}>
             <Text style={styles.buttonText}>Search</Text>
           </Pressable>
-          <Pressable style={styles.uploadButton} onPress={handleUploadCSV}>
+          <Pressable style={styles.uploadButton} >
             <Icon name="upload" size={20} color="#fff" />
           </Pressable>
         </View>
@@ -420,36 +466,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.5,
   },
-  item:{
-    backgroundColor:'#f9f9f9', // Light grey background for items
-    paddingVertical:10,
-    paddingHorizontal:15,
-    borderRadius:5,
-    marginVertical:5,
-    borderWidth:1,
-    borderColor:'#dddddd',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
- },
- itemTitle:{
-    fontSize:18,
-    fontWeight:'bold',
- },
- itemText:{
-    fontSize:14,
-    color:'#666666'
- },
- voirButton: {
-    backgroundColor: '#007AFF',
-    padding: 8,
-    borderRadius: 5,
-  },
-  voirButtonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-
+  
   modalBackground: {
     flex: 1,
     alignItems: 'center',
@@ -469,6 +486,77 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  item: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  itemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  itemInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  itemText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  itemStatus: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4CAF50',
+    marginTop: 4,
+  },
+  buttonContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  voirButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginBottom: 8,
+  },
+  voirButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  favoriteButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  removeButton: {
+    backgroundColor: '#FF3B30',
+  },
+  favoriteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+
 });
 
 

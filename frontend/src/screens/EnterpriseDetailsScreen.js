@@ -80,6 +80,19 @@ const EnterpriseDetailsScreen = ({ route }) => {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contacts</Text>
+          {enterpriseDetails.contacts && enterpriseDetails.contacts.length > 0 ? (
+            enterpriseDetails.contacts.map((contact, index) => (
+              <View key={index} style={styles.subSection}>
+                <DetailRow label={contact.contactTypeDescription} value={contact.Value} />
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noDataText}>No contact information available</Text>
+          )}
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Adresses</Text>
           {enterpriseDetails.Addresses.map((address, index) => (
             <View key={index} style={styles.subSection}>
@@ -101,6 +114,8 @@ const EnterpriseDetailsScreen = ({ route }) => {
             </View>
           ))}
         </View>
+
+       
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Données financières</Text>
