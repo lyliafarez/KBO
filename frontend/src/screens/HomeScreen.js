@@ -1,21 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import SearchBar from '../Components/SearchBar';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList, Modal, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const HomeScreen = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasResults, setHasResults] = useState(false);
-  const { authState, logout } = useContext(AuthContext);
+  const { authState } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const [results, setResults] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
 
 
   const resultsPerPage = 100;
@@ -52,6 +55,7 @@ const HomeScreen = () => {
     console.log('Upload CSV button pressed');
   };
 
+
   const toggleAdvancedSearch = () => {
     setShowAdvancedSearch(!showAdvancedSearch);
   };
@@ -71,13 +75,31 @@ const HomeScreen = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Text style={styles.itemTitle}>Enterprise name: {item.FirstDenomination}</Text>
+
+  const renderItem = ({ item }) => {
+    return (
+      <View style={styles.item}>
+        <View>
+          <Text style={styles.itemTitle}>Enterprise name: {item.FirstDenomination}</Text>
       <Text style={styles.itemText}>Enterprise Number: {item.EnterpriseNumber}</Text>
       <Text style={styles.itemText}>Status: {item.Status || 'Status unavailable'}</Text>
-    </View>
-  );
+        </View>
+        <Pressable
+          style={styles.voirButton}
+          onPress={() => {
+            console.log("Voir button pressed for:", item.EnterpriseNumber);
+            navigation.navigate('EnterpriseDetails', {
+                enterpriseNumber: item.EnterpriseNumber 
+            });
+            console.log("After navigation call");
+          }}
+        >
+          <Text style={styles.voirButtonText}>Voir</Text>
+        </Pressable>
+      </View>
+    );
+  };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -318,26 +340,6 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
   },
-  item: {
-    backgroundColor: '#f9f9f9',
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  itemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  itemText: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 5,
-  },
   itemSubtitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -357,6 +359,39 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  item:{
+    backgroundColor:'#f9f9f9', // Light grey background for items
+    paddingVertical:10,
+    paddingHorizontal:15,
+    borderRadius:5,
+    marginVertical:5,
+    borderWidth:1,
+    borderColor:'#dddddd',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+ },
+ itemTitle:{
+    fontSize:18,
+    fontWeight:'bold',
+ },
+ itemText:{
+    fontSize:14,
+    color:'#666666'
+ },
+ voirButton: {
+    backgroundColor: '#007AFF',
+    padding: 8,
+    borderRadius: 5,
+  },
+  voirButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },
+
   modalBackground: {
     flex: 1,
     alignItems: 'center',
