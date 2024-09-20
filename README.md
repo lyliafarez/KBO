@@ -30,7 +30,7 @@ The **Enterprise Search App** allows users to search for enterprises based on va
 ## Project Organization
 We generally worked together as a team, distributing tasks across specific functionalities:
 
-**Lilya:** Authentication, advanced search, initial file upload.  
+**Lylia:** Authentication, advanced search, initial file upload.  
 **Kaira:** Design/Frontend, KBO scraping.  
 **Gabrielle:** Company data visualization, Swagger documentation.  
 **Jemima:** Company website scraping, scraping visualization, adding relationships to models, user profile.  
