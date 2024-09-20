@@ -47,8 +47,6 @@ async function scrapeKbo(enterpriseNumber) {
         city: cleanCity
     };
 
-
-
     let subCompanyInfo = {};
     // Check if there is only one establishment
     if (parseInt(NombreUE) === 1) {
