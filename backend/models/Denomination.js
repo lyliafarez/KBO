@@ -46,6 +46,7 @@ denominationSchema.index({ EntityNumber: 1, Language: 1, TypeOfDenomination: 1 }
 denominationSchema.index({ EntityNumber: 1 });
 denominationSchema.index({ Denomination: 'text' });
 
+
 const Denomination = mongoose.model('Denomination', denominationSchema);
 
 module.exports = Denomination;

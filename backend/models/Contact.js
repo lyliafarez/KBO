@@ -19,7 +19,7 @@ const contactSchema = new mongoose.Schema({
     required: true
   }
 });
-
+contactSchema.index({ EntityNumber: 1 });
 const Contact = mongoose.model("contacts", contactSchema);
 module.exports = Contact;
 
