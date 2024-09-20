@@ -66,4 +66,4 @@ To set up the backend part of the project:
 - denominations: Different denominations related to enterprises.
 - addresses: Address details for enterprises.
 - establishments: Information about different establishments related to enterprises.
-
+![Tech Stack](images/Screenshot 2024-09-20 141120.png)
