@@ -68,8 +68,23 @@ To set up the backend part of the project:
 - establishments: Information about different establishments related to enterprises.
 
 
-
-![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20142132.png)
+## App Walkthrough
+1. In the top corner of the screen, you'll find a hamburger menu icon that opens up additional navigation options. Here, you can:
+  - Login: Access your account by entering your credentials.
+  - Register: Create a new account if you're a new user.
+  - User Profile: Check and manage your profile settings and view your favorite enterprises.
+  - Home page : Search and find out more about existing enterprises
 ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20142152.png)
+
+2. Search Bar: At the top of the page, you'll find a user-friendly search bar where you can enter keywords such as enterprise number, name, or activity. Simply type in your query and hit search to find relevant enterprises quickly.
+3. Results List: Below the search bar, a dynamic list of results will appear based on your search criteria. Each result includes essential information about the enterprise, such as its name, number, status, and more. You can click on any enterprise to view detailed information, including its activities, addresses, denominations, and contacts.
+![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20142132.png)
+
+4. Advanced Search: For more precise results, we offer an advanced search option. This feature allows you to search based on specific fields such as:
+Enterprise Number
+Denomination (Name)
+Activity
+Address (Zipcode)
+You can select one or multiple fields to narrow down your search and find exactly what you're looking for
 ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20142143.png)
 
