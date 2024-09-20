@@ -69,4 +69,4 @@ To set up the backend part of the project:
 
 
 
-![Tech Stack](images/Screenshot 2024-09-20 141120.png)
+![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20141120.png)
