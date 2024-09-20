@@ -22,6 +22,7 @@ const establishmentSchema = new mongoose.Schema({
     }
   }
 });
+establishmentSchema.index({ EnterpriseNumber: 1 });
 
 const Establishment = mongoose.model('Establishment', establishmentSchema);
 
