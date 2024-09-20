@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Project Description](#project-description)
 - [Features](#features)
+- [Project Organization](#project-organization)
 - [Technologies Used](#technologies-used)
 - [Project Setup](#project-setup)
   - [Frontend Setup](#frontend-setup)
@@ -26,14 +27,6 @@ The **Enterprise Search App** allows users to search for enterprises based on va
 - **Enterprise Details**: View detailed information for each enterprise.
 - **Favorites**: Authenticated users can save enterprises to their favorites list.
 
-
-## Technologies Used
-
-- **Frontend**: React, Inertia.js, Vue.js
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose for ODM)
-- **Authentication**: JWT Authentication for user login and protected routes
-
 ## Project Organization
 We generally worked together as a team, distributing tasks across specific functionalities:
 
@@ -42,6 +35,13 @@ We generally worked together as a team, distributing tasks across specific funct
 **Gabrielle:** Company data visualization, Swagger documentation.  
 **Jemima:** Company website scraping, scraping visualization, adding relationships to models, user profile.  
 **Tania:** Search bar, favorites management.
+
+## Technologies Used
+
+- **Frontend**: React, Inertia.js, Vue.js
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB (Mongoose for ODM)
+- **Authentication**: JWT Authentication for user login and protected routes
 
 ## Project Setup
 
