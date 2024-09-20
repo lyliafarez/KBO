@@ -158,7 +158,7 @@ const enterpriseController = {
     try {
       const { enterpriseNumber } = req.params;
       const language = req.query.lang || 'FR'; // Default to French if not provided
-      const limit = parseInt(req.query.limit) || 100; // Default limit for contacts, denominations, etc.
+      const limit = parseInt(req.query.limit) || 50; // Default limit for contacts, denominations, etc.
       const skip = parseInt(req.query.skip) || 0;
   
       console.log(`Fetching enterprise with number ${enterpriseNumber} and language ${language}`);
