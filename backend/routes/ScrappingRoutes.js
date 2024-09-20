@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { scrapeEnterprise } = require('../controllers/ScrappingController');
+const { scrapeEnterprise,scrapeKboEntreprise } = require('../controllers/ScrappingController');
 
 /**
  * @swagger
@@ -74,6 +74,7 @@ const { scrapeEnterprise } = require('../controllers/ScrappingController');
  *         description: Server error
  */
 router.get('/:enterpriseNumber', scrapeEnterprise);
+router.get('/kbo/:enterpriseNumber', scrapeKboEntreprise);
 //router.get('/scrape/multiple', scrapeMultipleEnterprises);
 
 

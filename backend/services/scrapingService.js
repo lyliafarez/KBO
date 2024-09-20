@@ -85,14 +85,14 @@ async function scrapeEntrepriseweb(enterpriseNumber) {
 
 
 
-
-
 async function scrapeKbo(enterpriseNumber) {
+    console.log(enterpriseNumber)
     const url = `https://kbopub.economie.fgov.be/kbopub/zoeknummerform.html?lang=fr&nummer=${enterpriseNumber}&actionLu=Rechercher`;
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
+    
 
-
+    console.log("1")
     // Extract specific information
     const entrepriseName = $('tr:contains("Dénomination:") td').eq(1).contents().filter((i, el) => el.nodeType === 3).text().trim();
     const status = $('td:contains("Statut")').next().text().trim();
@@ -109,29 +109,30 @@ async function scrapeKbo(enterpriseNumber) {
     const DateDebut = $('tr:contains("Date de début:") td').eq(1).text().trim();
     const TypeEntite = $('tr:contains("Type d\'entité") td').eq(1).text().trim();
     const NombreUE = $('tr:contains("Nombre d\'unités d\'établissement (UE):") td').eq(1).text().trim().match(/\d+/)?.[0] || '0';
-
+    console.log("2")
      // Extract headquarters address
-     const headquartersRow = $('tr').filter((i, el) => {
-        return $(el).find('td.QL').first().text().includes('Adresse du siège:');
-    });
+    //  const headquartersRow = $('tr').filter((i, el) => {
+    //     return $(el).find('td.QL').first().text().includes('Adresse du siège:');
+    // });
 
-    const fullHeadquartersAddress = headquartersRow.find('td.QL').eq(1).html().replace(/&nbsp;/g, ' ').trim();
-    const addressParts = fullHeadquartersAddress.split('<br>').map(part => part.trim());
+    // const fullHeadquartersAddress = headquartersRow.find('td.QL').eq(1).html().replace(/&nbsp;/g, ' ').trim();
+    // console.log("1")
+    // const addressParts = fullHeadquartersAddress.split('<br>').map(part => part.trim());
+   
+    // const headquartersStreetWithNumber = addressParts[0].trim();
+    // const headquartersStreet = headquartersStreetWithNumber.replace(/\s*\d+\s*$/, '').trim();
+    // const headquartersStreetNumber = headquartersStreetWithNumber.match(/\d+/) ? headquartersStreetWithNumber.match(/\d+/)[0] : null;
 
-    const headquartersStreetWithNumber = addressParts[0].trim();
-    const headquartersStreet = headquartersStreetWithNumber.replace(/\s*\d+\s*$/, '').trim();
-    const headquartersStreetNumber = headquartersStreetWithNumber.match(/\d+/) ? headquartersStreetWithNumber.match(/\d+/)[0] : null;
-
-    const headquartersPostalCode = addressParts[1].split(' ')[0].trim();
-    const headquartersCity = addressParts[1].split(' ').slice(1).join(' ').trim();
-    const cleanCity = headquartersCity.split('\n')[0].trim().replace(/<.*?>/g, '');
-    const headquartersAddress = {
-        street: headquartersStreet.replace(/\s+/g, ' '),
-        streetNumber: headquartersStreetNumber,
-        postalCode: headquartersPostalCode,
-        city: cleanCity
-    };
-
+    // const headquartersPostalCode = addressParts[1].split(' ')[0].trim();
+    // const headquartersCity = addressParts[1].split(' ').slice(1).join(' ').trim();
+    // const cleanCity = headquartersCity.split('\n')[0].trim().replace(/<.*?>/g, '');
+    // const headquartersAddress = {
+    //     street: headquartersStreet.replace(/\s+/g, ' '),
+    //     streetNumber: headquartersStreetNumber,
+    //     postalCode: headquartersPostalCode,
+    //     city: cleanCity
+    // };
+    console.log("f")
     let subCompanyInfo = {};
     // Check if there is only one establishment
     if (parseInt(NombreUE) === 1) {
@@ -139,8 +140,9 @@ async function scrapeKbo(enterpriseNumber) {
         console.log(`Fetching data from: ${url}`);
         const { data } = await axios.get(url);
         const $ = cheerio.load(data);
-
+      
         const fullAddress = $('tr').find('td.QL:contains("Adresse de l\'unité")').next('td.QL').html().replace(/&nbsp;/g, ' ').trim();
+       
         const addressParts = fullAddress.split('<br>').map(part => part.trim());
 
         // Extract street, postal code, and city
@@ -186,7 +188,7 @@ async function scrapeKbo(enterpriseNumber) {
 
         const postalCode = addressParts[1].split(' ')[0].trim();
         const city = addressParts[1].split(' ').slice(1).join(' ').trim();
-
+       
         subCompaniesInfo.push({
             uniteEtabNumber,
             date,
