@@ -10,10 +10,6 @@
 - [Database Population](#database-population)
   - [File Upload Process](#file-upload-process)
   - [Database Schemas](#database-schemas)
-- [How to Add Images](#how-to-add-images)
-- [Available Commands](#available-commands)
-  - [Frontend Commands](#frontend-commands)
-  - [Backend Commands](#backend-commands)
 - [App Walkthrough](#app-walkthrough)
 - [License](#license)
 
@@ -46,14 +42,17 @@ To set up the frontend part of the project:
 1. Navigate to the `frontend` directory:
    ```bash
    cd frontend
+   npm i
+   npm run android
+### Backend Setup
+
+To set up the backend part of the project:
+
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   npm i
+   npm start
 
 
-**Pour le lancement du projet**
-### Frontend
-- cd frontend
-- npm i 
-- npm run android
 
-## backend
--  npm i
-- npm start
