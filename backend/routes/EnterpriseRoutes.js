@@ -104,7 +104,7 @@ router.get('/', enterpriseController.getAllEnterprises);
 
 router.get('/:enterpriseNumber', enterpriseController.getEnterpriseByNumber);
 
-
+router.get('/id/:id', enterpriseController.getEnterpriseById); //
 router.get('/:enterpriseNumber/establishments', enterpriseController.getEnterpriseEstablishments);
 
 router.get('/:enterpriseNumber/branches', enterpriseController.getEntrepriseBranch);

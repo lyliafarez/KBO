@@ -738,6 +738,16 @@ const enterpriseController = {
     }
   },
 
+  getEnterpriseById: async (req, res) => {
+    try {
+      const enterprise = await Enterprise.findById(req.params.id);
+      if (!enterprise) return res.status(404).json({ message: 'Enterprise not found' });
+      res.json(enterprise);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
   // Get enterprises by Status
   getEnterprisesByStatus: async (req, res) => {
     try {
