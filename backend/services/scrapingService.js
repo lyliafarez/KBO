@@ -1,45 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-async function scrapeEntrepriseweb(enterpriseNumber) {
-    try {
-        const url = `https://kbopub.economie.fgov.be/kbopub/toonvestigingps.html?lang=fr&ondernemingsnummer=${enterpriseNumber}`;
-        console.log(`Fetching data from: ${url}`);
-        const { data } = await axios.get(url);
-        const $ = cheerio.load(data);
 
-        const fullAddress = $('tr').find('td.QL:contains("Adresse de l\'unité")').next('td.QL').html().replace(/&nbsp;/g, ' ').trim();
-        const addressParts = fullAddress.split('<br>').map(part => part.trim());
-
-        // Extract street, postal code, and city
-        const streetWithNumber = addressParts[0].trim();
-        const street = streetWithNumber.replace(/\s*\d+\s*$/, '').trim();
-        const postalCode = addressParts[1].split(' ')[0].trim();
-        const city = addressParts[1].split(' ').slice(1).join(' ').trim();
-        const streetNumber = streetWithNumber.match(/\d+/) ? streetWithNumber.match(/\d+/)[0] : null;
-        
-        const generalities = {
-            entNum: $('a.QL').text().trim(),
-            statusEntity: $('span.pageactief').eq(1).text().trim(),
-            establishmentNumber: $('tr').find('td.QL:contains("Numéro de l\'unité")').next('td.QL').text().trim(),
-            establishmentStatus: $('span.pageactief').eq(1).text().trim(),
-            denomination: $('tr').find('td.RL:contains("Dénomination de l\'unité")').next('td.RL').contents().not('span').text().trim(),
-            startDate: $('tr').find('td.QL:contains("Date de début:")').next('td.QL').text().trim(),
-            entityName: $('td.RL').eq(1).contents().not('span').text().trim(),
-            address: {
-                street: street.replace(/\s+/g, ' '), 
-                postalCode: postalCode,
-                city: city,
-                streetNumber: streetNumber
-            }
-        };
-
-        return { generalities };
-    } catch (error) {
-        console.error('Error in scrapeEntrepriseweb:', error.message);
-        throw new Error('Failed to scrape entreprise web data');
-    }
-}
 
 async function scrapeKbo(enterpriseNumber) {
     const url = `https://kbopub.economie.fgov.be/kbopub/zoeknummerform.html?lang=fr&nummer=${enterpriseNumber}&actionLu=Rechercher`;
@@ -250,8 +212,6 @@ async function scrapeKbo(enterpriseNumber) {
     };
 }
 
-
 module.exports = {
-    scrapeEntrepriseweb,
     scrapeKbo
 };
