@@ -47,9 +47,20 @@ exports.search = async (req, res) => {
     const enterprises = await Enterprise.find({ EnterpriseNumber: { $in: Array.from(enterpriseNumbers) } })
       .select('_id EnterpriseNumber Status');
 
-    
-    if (enterprises.length > 0) {
-      res.json(enterprises);
+    // Fetch the first denomination for each enterprise
+    const enterprisesWithDenomination = await Promise.all(enterprises.map(async (enterprise) => {
+      const denomination = await Denomination.findOne({ EntityNumber: enterprise.EnterpriseNumber })
+        .sort({ _id: 1 })
+        .select('Denomination -_id');
+      
+      return {
+        ...enterprise.toObject(),
+        FirstDenomination: denomination ? denomination.Denomination : null
+      };
+    }));
+
+    if (enterprisesWithDenomination.length > 0) {
+      res.json(enterprisesWithDenomination);
     } else {
       res.status(404).json({ message: 'No results found' });
     }
@@ -57,4 +68,4 @@ exports.search = async (req, res) => {
     console.error('Search Error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
-};
+}
