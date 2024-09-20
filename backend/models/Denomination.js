@@ -43,6 +43,9 @@ const denominationSchema = new mongoose.Schema({
 
 // Compound index for uniqueness
 denominationSchema.index({ EntityNumber: 1, Language: 1, TypeOfDenomination: 1 }, { unique: true });
+denominationSchema.index({ EntityNumber: 1 });
+denominationSchema.index({ Denomination: 'text' });
+
 
 const Denomination = mongoose.model('Denomination', denominationSchema);
 
