@@ -1,8 +1,10 @@
 const Enterprise = require('../models/Enterprise');
+const Branch = require('../models/Branch')
 const Code = require('../models/Code');
 const Denomination = require('../models/Denomination');
 const Contact = require('../models/Contact');
 const Establishment = require('../models/Establishment');
+const { getEstablishmentsByEnterprise } = require('./EstablishmentController');
 
 const enterpriseController = {
   // Create a new enterprise
@@ -158,7 +160,7 @@ const enterpriseController = {
     try {
       const { enterpriseNumber } = req.params;
       const language = req.query.lang || 'FR'; // Default to French if not provided
-      const limit = parseInt(req.query.limit) || 100; // Default limit for contacts, denominations, etc.
+      const limit = parseInt(req.query.limit) || 50; // Default limit for contacts, denominations, etc.
       const skip = parseInt(req.query.skip) || 0;
   
       console.log(`Fetching enterprise with number ${enterpriseNumber} and language ${language}`);
@@ -539,6 +541,176 @@ const enterpriseController = {
       res.status(500).json({ message: 'An error occurred while fetching the enterprise data' });
     }
   },
+
+  getEnterpriseEstablishments :async (req, res) => {
+    try {
+      const { enterpriseNumber } = req.params;
+      const limit = parseInt(req.query.limit) || 100; // Limit establishments
+      const skip = parseInt(req.query.skip) || 0;
+  
+      const result = await Enterprise.aggregate([
+        {
+          $match: { EnterpriseNumber: enterpriseNumber }
+        },
+        {
+          $lookup: {
+            from: 'establishments',
+            let: { enterpriseNumber: '$EnterpriseNumber' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$EnterpriseNumber', '$$enterpriseNumber'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit },
+              {
+                $lookup: {
+                  from: 'denominations',
+                  let: { establishmentNumber: '$EstablishmentNumber' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: { $eq: ['$EntityNumber', '$$establishmentNumber'] }
+                      }
+                    }
+                  ],
+                  as: 'denominations'
+                }
+              },
+              {
+                $lookup: {
+                  from: 'contacts',
+                  let: { establishmentNumber: '$EstablishmentNumber' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: { $eq: ['$EntityNumber', '$$establishmentNumber'] }
+                      }
+                    }
+                  ],
+                  as: 'contacts'
+                }
+              },
+              {
+                $lookup: {
+                  from: 'addresses',
+                  let: { establishmentNumber: '$EstablishmentNumber' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: { $eq: ['$EstablishmentNumber', '$$establishmentNumber'] }
+                      }
+                    }
+                  ],
+                  as: 'addresses'
+                }
+              }
+            ],
+            as: 'establishments'
+          }
+        },
+        {
+          $project: {
+            EnterpriseNumber: 1,
+            establishments: 1
+          }
+        }
+      ]);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ message: 'No establishments found for this enterprise' });
+      }
+  
+      res.json(result[0]);
+    } catch (error) {
+      console.error('Error in getEnterpriseEstablishments:', error);
+      res.status(500).json({ message: 'An error occurred while fetching the enterprise establishments' });
+    }
+  },
+  
+  getEntrepriseBranch: async (req, res) => {
+    try {
+      const { enterpriseNumber } = req.params;
+      const limit = parseInt(req.query.limit) || 100; // Limit branches
+      const skip = parseInt(req.query.skip) || 0;
+  
+      const result = await Branch.aggregate([
+        {
+          $match: { EnterpriseNumber: enterpriseNumber }
+        },
+        {
+          $lookup: {
+            from: 'addresses',
+            let: { branchId: '$Id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$BranchId', '$$branchId'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit }
+            ],
+            as: 'addresses'
+          }
+        },
+        {
+          $lookup: {
+            from: 'denominations',
+            let: { branchId: '$Id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$EntityNumber', '$$branchId'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit }
+            ],
+            as: 'denominations'
+          }
+        },
+        {
+          $lookup: {
+            from: 'activities',
+            let: { branchId: '$Id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$EntityNumber', '$$branchId'] }
+                }
+              },
+              { $skip: skip },
+              { $limit: limit }
+            ],
+            as: 'activities'
+          }
+        },
+        {
+          $project: {
+            Id: 1,
+            StartDate: 1,
+            EnterpriseNumber: 1,
+            addresses: 1,
+            denominations: 1,
+            activities: 1
+          }
+        }
+      ]);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ message: 'No branches found for this enterprise' });
+      }
+  
+      res.json(result);
+    } catch (error) {
+      console.error('Error in getBranches:', error);
+      res.status(500).json({ message: 'An error occurred while fetching the branches' });
+    }
+  }
+  ,
+  
   
   // Update an enterprise
   updateEnterprise: async (req, res) => {

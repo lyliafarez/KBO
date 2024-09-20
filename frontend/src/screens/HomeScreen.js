@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { View, Text, StyleSheet, SafeAreaView, Pressable, Dimensions, FlatList } from 'react-native';
 import SearchBar from '../Components/SearchBar';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, Pressable, Dimensions, FlatList, Modal, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const HomeScreen = () => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -13,30 +15,30 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   const [results, setResults] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    console.log('Auth state changed:', authState);
-  }, [authState]);
 
-  const resultsPerPage = 5;
+  const resultsPerPage = 100;
+
+  const toggleFilter = (filter) => {
+    setSelectedFilters((prevFilters) => {
+      if (prevFilters.includes(filter)) {
+        return prevFilters.filter(f => f !== filter);
+      } else {
+        return [...prevFilters, filter];
+      }
+    });
+  };
 
   const handleSearch = async (query) => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/search?query=${query}`);
-      let data = [];
-
-      if (Array.isArray(response.data)) {
-        data = response.data;
-      } else if (response.data.enterprise && response.data.denomination) {
-        data = [{
-          _id: response.data.enterprise._id,
-          Denomination: response.data.denomination.Denomination || 'Nom indisponible',
-          EnterpriseNumber: response.data.enterprise.EnterpriseNumber || 'Numéro indisponible',
-          Status: response.data.enterprise.Status || 'Statut indisponible'
-        }];
-      }
-
-      console.log('Résultats de la recherche===>', data);
+      const filtersQueryString = selectedFilters.join(',');
+      const response = await axios.get(`http://localhost:5000/api/search?query=${query}&filters=${filtersQueryString}`);
+      let data = response.data;
       setResults(data);
       setHasResults(data.length > 0);
       setCurrentPage(1);
@@ -44,6 +46,8 @@ const HomeScreen = () => {
       console.error('Erreur lors de la recherche:', error);
       setResults([]);
       setHasResults(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,8 +55,9 @@ const HomeScreen = () => {
     console.log('Upload CSV button pressed');
   };
 
-  const toggleDrawer = () => {
-    setShowDrawer(!showDrawer);
+
+  const toggleAdvancedSearch = () => {
+    setShowAdvancedSearch(!showAdvancedSearch);
   };
 
   const totalPages = Math.ceil(results.length / resultsPerPage);
@@ -70,15 +75,14 @@ const HomeScreen = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+
   const renderItem = ({ item }) => {
-    console.log("Rendering item:", item); // Log the entire item object
-  
     return (
       <View style={styles.item}>
         <View>
-          <Text style={styles.itemTitle}>Nom : {item.Denomination}</Text>
-          <Text style={styles.itemText}>Numéro d'entreprise : {item.enterpriseNumber || 'Numéro indisponible'}</Text>
-          <Text style={styles.itemText}>Status : {item.Status || 'Statut indisponible'}</Text>
+          <Text style={styles.itemTitle}>Enterprise name: {item.FirstDenomination}</Text>
+      <Text style={styles.itemText}>Enterprise Number: {item.EnterpriseNumber}</Text>
+      <Text style={styles.itemText}>Status: {item.Status || 'Status unavailable'}</Text>
         </View>
         <Pressable
           style={styles.voirButton}
@@ -96,19 +100,64 @@ const HomeScreen = () => {
     );
   };
 
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.outerContainer}>
         <Text style={styles.header}>Search for information on companies</Text>
         <View style={styles.searchContainer}>
-          <SearchBar onSearch={handleSearch} />
+          <View style={styles.searchBarContainer}>
+            <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Find enterprise by number, denomination, activity, zip code"
+              onChangeText={setSearchQuery}
+              value={searchQuery}
+            />
+          </View>
+          <Pressable style={styles.searchButton} onPress={() => handleSearch(searchQuery)}>
+            <Text style={styles.buttonText}>Search</Text>
+          </Pressable>
           <Pressable style={styles.uploadButton} onPress={handleUploadCSV}>
-            <Text style={styles.buttonText}>Upload CSV</Text>
+            <Icon name="upload" size={20} color="#fff" />
           </Pressable>
         </View>
-        <Pressable onPress={toggleDrawer}>
-          <Text style={styles.advanceSearchText}>Advance research</Text>
+
+        <Pressable onPress={toggleAdvancedSearch} style={styles.advancedSearchButton}>
+          <Text style={styles.advanceSearchText}>
+            {showAdvancedSearch ? 'Hide Advanced Search' : 'Show Advanced Search'}
+          </Text>
+          <Icon name={showAdvancedSearch ? 'chevron-up' : 'chevron-down'} size={16} color="#007AFF" />
         </Pressable>
+
+        {showAdvancedSearch && (
+          <View style={styles.filtersContainer}>
+            <Pressable 
+              style={[styles.filterButton, selectedFilters.includes('enterprise_number') && styles.activeFilterButton]}
+              onPress={() => toggleFilter('enterprise_number')}
+            >
+              <Text style={styles.filterButtonText}>Enterprise Number</Text>
+            </Pressable>
+            <Pressable 
+              style={[styles.filterButton, selectedFilters.includes('denomination') && styles.activeFilterButton]}
+              onPress={() => toggleFilter('denomination')}
+            >
+              <Text style={styles.filterButtonText}>Denomination</Text>
+            </Pressable>
+            <Pressable 
+              style={[styles.filterButton, selectedFilters.includes('activity') && styles.activeFilterButton]}
+              onPress={() => toggleFilter('activity')}
+            >
+              <Text style={styles.filterButtonText}>Activity</Text>
+            </Pressable>
+            <Pressable 
+              style={[styles.filterButton, selectedFilters.includes('address') && styles.activeFilterButton]}
+              onPress={() => toggleFilter('address')}
+            >
+              <Text style={styles.filterButtonText}>Zip code</Text>
+            </Pressable>
+          </View>
+        )}
       </View>
       
       <View style={styles.listContainer}>
@@ -147,6 +196,19 @@ const HomeScreen = () => {
           <Text style={styles.noResultsText}>No results found</Text>
         )}
       </View>
+
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isLoading}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.activityIndicatorWrapper}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={styles.loadingText}>Searching...</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -156,103 +218,144 @@ const { height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#f0f0f0',
   },
   outerContainer: {
-    flex: 1,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#cccccc',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333333',
+  },
+  searchContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    marginBottom: 10,
+  },
+  searchBarContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    height: 50,
+    marginRight: 10,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
+  searchButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginRight: 10,
+  },
+  uploadButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 25,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  advancedSearchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  advanceSearchText: {
+    color: '#007AFF',
+    fontSize: 16,
+    marginRight: 5,
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  filterButton: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+    minWidth: '48%',
+    alignItems: 'center',
+  },
+  activeFilterButton: {
+    backgroundColor: '#007AFF',
+  },
+  filterButtonText: {
+    color: '#333',
+    fontSize: 14,
   },
   listContainer: {
-    backgroundColor: 'white',
-    width: '100%',
-    padding: 20,
-    height: height * 0.58, // Fixed height to always cover 58% of the screen
-    justifyContent: 'flex-start',
+    flex: 1,
+    backgroundColor: '#ffffff',
   },
   topContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#cccccc',
   },
   resultsCount: {
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#333333',
   },
   paginationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   paginationButton: {
-    padding: 10,
+    backgroundColor: '#007AFF',
     borderRadius: 5,
-    backgroundColor: '#FFD20A',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     marginHorizontal: 5,
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
   },
   paginationText: {
     color: 'black',
-    fontSize: 16,
+    fontSize: 14,
   },
-  header: {
-    fontSize: 24,
+  itemSubtitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 5,
+    color: '#444',
   },
-  advanceSearchText: {
-    fontSize: 18,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    width: '80%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  searchButton: {
-    padding: 10,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFD20A',
-  },
-  uploadButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: 'green',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  buttonTextSearch: {
-    color: 'black',
-    fontSize: 16,
-  },
-  searchBar: {
-    flex: 1,
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
-  },
-  itemContainer: {
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: 'white',
-    borderRadius: 5,
-  },
-  itemText: {
-    fontSize: 16,
+  itemListText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 10,
+    marginBottom: 2,
   },
   noResultsText: {
     fontSize: 16,
-    fontStyle: 'italic',
+    color: '#666',
     textAlign: 'center',
     marginTop: 20,
   },
@@ -288,7 +391,26 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
- 
+
+  modalBackground: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  activityIndicatorWrapper: {
+    backgroundColor: 'white',
+    height: 100,
+    width: 100,
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default HomeScreen;
