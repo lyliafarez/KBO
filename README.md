@@ -56,14 +56,14 @@ To set up the backend part of the project:
 
 ## Database population
 ### Database Schemas
-enterprises: Stores information about enterprises.
-users: Contains user authentication data.
-favorites: Tracks users' favorite enterprises.
-activities: Logs different activities related to enterprises.
-codes: Stores various codes associated with enterprises.
-contacts: Contains contact details for each enterprise.
-branches: Information about branches of enterprises.
-denominations: Different denominations related to enterprises.
-addresses: Address details for enterprises.
-establishments: Information about different establishments related to enterprises.
+- enterprises: Stores information about enterprises.
+- users: Contains user authentication data.
+- favorites: Tracks users' favorite enterprises.
+- activities: Logs different activities related to enterprises.
+- codes: Stores various codes associated with enterprises.
+- contacts: Contains contact details for each enterprise.
+- branches: Information about branches of enterprises.
+- denominations: Different denominations related to enterprises.
+- addresses: Address details for enterprises.
+- establishments: Information about different establishments related to enterprises.
 
