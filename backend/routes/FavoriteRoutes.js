@@ -1,6 +1,7 @@
 const express = require('express');
-const favoriteController = require('../controllers/FavoriteController');
 const router = express.Router();
+const favoriteController = require('../controllers/FavoriteController');
+
 
 /**
  * @swagger
