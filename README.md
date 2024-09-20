@@ -34,6 +34,14 @@ The **Enterprise Search App** allows users to search for enterprises based on va
 - **Database**: MongoDB (Mongoose for ODM)
 - **Authentication**: JWT Authentication for user login and protected routes
 
+## Project Organization
+We generally worked together as a team, distributing tasks across specific functionalities:
+
+**Lilya:** Authentication, advanced search, initial file upload.  
+**Kaira:** Design/Frontend, KBO scraping.  
+**Gabrielle:** Company data visualization, Swagger documentation.  
+**Jemima:** Company website scraping, scraping visualization, adding relationships to models, user profile.  
+**Tania:** Search bar, favorites management.
 
 ## Project Setup
 
