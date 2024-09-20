@@ -84,60 +84,7 @@ async function scrapeEntrepriseweb(enterpriseNumber) {
 }
 
 
-        // Extraire la date de création
-        entrepriseData.creationDate = $('div[itemprop="foundingDate"]').text().trim(); // Date de création
 
-        // Extraire l'activité principale
-        entrepriseData.mainActivity = $('span[itemprop="description"]').text().trim(); // Activité principale
-
-        // Extraire les années des en-têtes du tableau financier et les mettre dans titleFinancialData
-        let titleFinancialData = [];
-        $('table.data-table thead th').each((index, element) => {
-            const year = $(element).text().trim();
-            if (year && !isNaN(year)) { // Vérifie que c'est bien une année
-                titleFinancialData.push(year);
-            }
-        });
-
-        // Trier les années dans l'ordre décroissant
-        titleFinancialData.sort((a, b) => b - a);
-
-        // Ajouter les années triées aux données de l'entreprise
-        entrepriseData.financialYears = titleFinancialData;
-
-        // Générer une phrase avec les années financières
-        if (titleFinancialData.length > 0) {
-            entrepriseData.financialStatement = `Données financières et fluctuations en pourcentage de l'année ${titleFinancialData[0]} à l'année ${titleFinancialData[titleFinancialData.length - 1]}, de manière décroissante.`;
-        } else {
-            entrepriseData.financialStatement = 'Aucune donnée financière disponible.';
-        }
-        
-        // Extraire les données financières
-        entrepriseData.financialData = {};
-        $('table.data-table tbody tr').each((index, element) => {
-            const label = $(element).find('td.start-tab').text().trim();
-            const values = $(element).find('td').slice(1).map((i, el) => $(el).text().trim()).get();
-            entrepriseData.financialData[label] = values;
-        });
-
-          // Extraire les informations du modal Google Maps
-        entrepriseData.mapData = {
-            name: $('div.map').attr('data-name'),
-            street: $('div.map').attr('data-street'),
-            number: $('div.map').attr('data-number'),
-            postcode: $('div.map').attr('data-postcode'),
-            city: $('div.map').attr('data-city')
-        };
-
-
-    return entrepriseData;
-    } catch (error) {
-        console.error('Erreur lors du scraping:', error);
-        return {
-            error: 'Erreur lors du scraping'
-        };
-    }
-}
 
 
 async function scrapeKbo(enterpriseNumber) {
