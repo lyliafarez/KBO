@@ -125,7 +125,7 @@ You can select one or multiple fields to narrow down your search and find exactl
 - this part of the enterprise visualisation is scrapped from companyWeb
   ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/Screenshot%202024-09-20%20143419.png)
 
-7. The user settings and liste of favorites can be found on My profile page :
+7. The user's settings and liste of favorites can be found on My profile page :
 -  ![Tech Stack](https://github.com/lyliafarez/KBO/blob/main/images/userProfile.png)
 
    
