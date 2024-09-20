@@ -25,7 +25,7 @@ const parseDate = (dateString) => {
 // upload enterprises
 
 exports.uploadFirst10Enterprises = async (req, res) => {
-  const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/enterprise.csv"; // Adjust this path
+  const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/enterprise.csv"; // Adjust this path
   const results = [];
   let isFirstLine = true;
 
@@ -83,7 +83,7 @@ exports.uploadFirst10Enterprises = async (req, res) => {
 
 // upload addresses
 exports.uploadFirst100Addresses = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/address.csv"; 
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/address.csv"; 
     const results = [];
     let isFirstLine = true;
 
@@ -154,7 +154,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   // upload establishments
   exports.uploadFirst100Establishments = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/establishment.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/establishment.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
@@ -214,7 +214,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   //upload activity
   exports.uploadFirst100Activities = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/activity.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/activity.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
@@ -270,7 +270,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   // upload denomination
   exports.uploadFirst100Denominations = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/denomination.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/denomination.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
@@ -325,7 +325,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   // upload contact
   exports.uploadFirst100Contacts = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/contact.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/contact.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
@@ -383,7 +383,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   // upload code
   exports.uploadFirst100Codes = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/code.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/code.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
@@ -438,7 +438,7 @@ exports.uploadFirst100Addresses = async (req, res) => {
 
   // upload branch
   exports.uploadFirst100Branches = async (req, res) => {
-    const filePath = "C:/Users/tinad/Downloads/KboOpenData_0127_2024_09_Full/branch.csv"; // Adjust this path
+    const filePath = "/Users/canariaka/Downloads/KboOpenData_0127_2024_09_Full/branch.csv"; // Adjust this path
     const results = [];
     let isFirstLine = true;
   
