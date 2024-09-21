@@ -6,18 +6,23 @@ const EnterpriseDetailsScreen = ({ route }) => {
   const { enterpriseNumber } = route.params;
   const [enterpriseDetails, setEnterpriseDetails] = useState(null);
   const [enterpriseData, setEnterpriseData] = useState(null);
+  const [enterpriseDataKbo, setEnterpriseDataKbo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [detailsResponse, dataResponse] = await Promise.all([
+        const [detailsResponse, dataResponse,kboResponse] = await Promise.all([
           axios.get(`http://localhost:5000/api/enterprises/${enterpriseNumber}`),
-          axios.get(`http://localhost:5000/api/scrapping/${enterpriseNumber}`)
+          axios.get(`http://localhost:5000/api/scrapping/${enterpriseNumber}`),
+          axios.get(`http://localhost:5000/api/scrapping/kbo/${enterpriseNumber}`),
         ]);
+        
         setEnterpriseDetails(detailsResponse.data);
         setEnterpriseData(dataResponse.data.EntrepriseDataEntrepriseweb);
+        setEnterpriseDataKbo(kboResponse.data.EntrepriseDataKbo);
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching enterprise data:', err);
@@ -62,9 +67,9 @@ const EnterpriseDetailsScreen = ({ route }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations Générales</Text>
           <DetailRow label="Numéro d'entreprise" value={enterpriseDetails.EnterpriseNumber} />
-          <DetailRow label="Status" value={enterpriseDetails.Status} />
+          <DetailRow label="Status" value={enterpriseDataKbo.status} />
           <DetailRow label="Situation Juridique" value={enterpriseDetails.juridicalSituationDescription} />
-          <DetailRow label="Type d'entreprise" value={enterpriseDetails.TypeOfEnterpriseDescription} />
+          <DetailRow label="Type d'entreprise" value={enterpriseDataKbo.TypeEntite} />
           <DetailRow label="Forme Juridique" value={enterpriseDetails.juridicalFormDescription} />
           <DetailRow label="Date de lancement" value={new Date(enterpriseDetails.startDate).toLocaleDateString()} />
         </View>
@@ -91,6 +96,58 @@ const EnterpriseDetailsScreen = ({ route }) => {
             <Text style={styles.noDataText}>No contact information available</Text>
           )}
         </View>
+        <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Nombre UE et Sous entreprise</Text>
+  
+  {/* Display Nombre UE */}
+  <DetailRow label="Nombre UE" value={enterpriseDataKbo.NombreUE.toString()} />
+
+  {enterpriseDataKbo.NombreUE === 1 && enterpriseDataKbo.subCompanyInfo ? (
+    // Display subCompanyInfo if Nombre UE is 1
+    <View style={styles.subSection}>
+      <Text style={styles.sectionTitle}>Sub entreprise</Text>
+      <DetailRow label="Denomination" value={enterpriseDataKbo.subCompanyInfo.denomination} />
+      <DetailRow label="Numéro UE" value={enterpriseDataKbo.subCompanyInfo.uniteEtabNumber} />
+      <DetailRow label="Date" value={enterpriseDataKbo.subCompanyInfo.date} />
+      <DetailRow label="Rue" value={`${enterpriseDataKbo.subCompanyInfo.address.street} ${enterpriseDataKbo.subCompanyInfo.address.streetNumber}`} />
+      <DetailRow label="Ville" value={`${enterpriseDataKbo.subCompanyInfo.address.postalCode} ${enterpriseDataKbo.subCompanyInfo.address.city}`} />
+    </View>
+  ) : enterpriseDataKbo.NombreUE > 1 && enterpriseDataKbo.subCompaniesInfo ? (
+    // Display subCompaniesInfo if Nombre UE is greater than 1
+    <View style={styles.subSection}>
+      <Text style={styles.sectionTitle}>Sous entreprises</Text>
+      {enterpriseDataKbo.subCompaniesInfo.length > 2 ? (
+        // If more than 2 sub-companies, wrap them in a ScrollView
+        <ScrollView style={{ maxHeight: 200 }}>
+          {enterpriseDataKbo.subCompaniesInfo.map((subCompany, index) => (
+            <View key={index} style={styles.subSection}>
+              <DetailRow label="Denomination" value={subCompany.denomination} />
+              <DetailRow label="Numéro UE" value={subCompany.uniteEtabNumber} />
+              <DetailRow label="Date" value={subCompany.date} />
+              <DetailRow label="Rue" value={`${subCompany.address.street} ${subCompany.address.streetNumber}`} />
+              <DetailRow label="Ville" value={`${subCompany.address.postalCode} ${subCompany.address.city}`} />
+            </View>
+          ))}
+        </ScrollView>
+      ) : (
+        // If 2 or fewer sub-companies, no scroll needed
+        enterpriseDataKbo.subCompaniesInfo.map((subCompany, index) => (
+          <View key={index} style={styles.subSection}>
+            <DetailRow label="Denomination" value={subCompany.denomination} />
+            <DetailRow label="Numéro UE" value={subCompany.uniteEtabNumber} />
+            <DetailRow label="Date" value={subCompany.date} />
+            <DetailRow label="Rue" value={`${subCompany.address.street} ${subCompany.address.streetNumber}`} />
+            <DetailRow label="Ville" value={`${subCompany.address.postalCode} ${subCompany.address.city}`} />
+          </View>
+        ))
+      )}
+    </View>
+  ) : (
+    // If neither subCompanyInfo nor subCompaniesInfo is available
+    <Text style={styles.noDataText}>No sub-company information available</Text>
+  )}
+</View>
+
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Adresses</Text>
@@ -102,7 +159,7 @@ const EnterpriseDetailsScreen = ({ route }) => {
             </View>
           ))}
         </View>
-
+{/* below the addresse is the sub companies */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Activités</Text>
           {enterpriseDetails.activities.map((activity, index) => (
@@ -116,7 +173,7 @@ const EnterpriseDetailsScreen = ({ route }) => {
         </View>
 
        
-
+{/* add the resumé de donnés financières */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Données financières</Text>
           {hasFinancialData() ? (
@@ -140,6 +197,13 @@ const EnterpriseDetailsScreen = ({ route }) => {
                     <Text style={styles.tableCell}>{enterpriseData.financialData['Personnel'][index * 2] || '-'}</Text>
                   </View>
                 ))}
+              </View>
+              <View style={styles.section}>
+              
+                <DetailRow label="Capital" value={enterpriseDataKbo.financialData?.capital || 'N/A'} />
+                <DetailRow label="Assemblée Générale" value={enterpriseDataKbo.financialData?.generalAssembly || 'N/A'} />
+                <DetailRow label="Fin d'Exercice Comptable" value={enterpriseDataKbo.financialData?.accountingYearEnd || 'N/A'} />
+
               </View>
             </ScrollView>
           ) : (
