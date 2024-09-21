@@ -62,7 +62,7 @@ const EnterpriseDetailsScreen = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <Text style={styles.title}>{enterpriseDetails.denominations[0]?.Denomination || 'Enterprise Details'}</Text>
+        <Text style={styles.title}>{enterpriseDetails?.denominations[0]?.Denomination || 'Enterprise Details'}</Text>
         
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations Générales</Text>
